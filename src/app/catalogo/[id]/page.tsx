@@ -10,7 +10,7 @@ import StockManager from "./StockManager";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 interface ProductoPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 /**
@@ -35,16 +35,17 @@ const obtenerProducto = cache(async (id: string): Promise<ProductoDetalle | null
 });
 
 export async function generateMetadata({ params }: ProductoPageProps): Promise<Metadata> {
-  const producto = await obtenerProducto(params.id).catch(() => null);
+  const { id } = await params;
+  const producto = await obtenerProducto(id).catch(() => null);
 
   if (!producto) {
     return { title: "Producto no encontrado | Tuerca y Perno RC" };
   }
 
-  const titulo = `${producto.nombre} - ${producto.marca} | Tuerca y Perno RC`;
+  const titulo = `${producto.nombre} - ${typeof producto.marca === "string" ? producto.marca : producto.marca.nombre} | Tuerca y Perno RC`;
   const descripcion =
     producto.descripcion?.trim().slice(0, 160) ||
-    `${producto.nombre} de ${producto.marca} en la categoría ${producto.categoria}. Consultá precio y stock en Tuerca y Perno RC.`;
+    `${producto.nombre} de ${typeof producto.marca === "string" ? producto.marca : producto.marca.nombre} en la categoría ${typeof producto.categoria === "string" ? producto.categoria : producto.categoria.nombre}. Consultá precio y stock en Tuerca y Perno RC.`;
 
   return {
     title: titulo,
@@ -54,7 +55,8 @@ export async function generateMetadata({ params }: ProductoPageProps): Promise<M
 }
 
 export default async function ProductoPage({ params }: ProductoPageProps) {
-  const producto = await obtenerProducto(params.id);
+  const { id: productoIdParam } = await params;
+  const producto = await obtenerProducto(productoIdParam);
 
   if (!producto) {
     notFound();
@@ -62,10 +64,16 @@ export default async function ProductoPage({ params }: ProductoPageProps) {
 
   const { id, nombre, marca, categoria, precio, stock, descripcion } = producto;
 
+  const nombreMarca =
+    typeof marca === "string" ? marca : marca.nombre;
+
+  const nombreCategoria =
+    typeof categoria === "string" ? categoria : categoria.nombre;
+
   const fichaTecnica: { etiqueta: string; valor: React.ReactNode }[] = [
     { etiqueta: "Código", valor: <span className="font-mono">#{id}</span> },
-    { etiqueta: "Marca", valor: marca },
-    { etiqueta: "Categoría", valor: categoria },
+    { etiqueta: "Marca", valor: nombreMarca },
+    { etiqueta: "Categoría", valor: nombreCategoria },
     { etiqueta: "Precio unitario", valor: formatearPrecio(precio) },
     {
       etiqueta: "Stock disponible",
@@ -93,10 +101,10 @@ export default async function ProductoPage({ params }: ProductoPageProps) {
             </li>
             <li>
               <Link
-                href={`/catalogo?categoria=${encodeURIComponent(categoria)}`}
+                href={`/catalogo?categoria=${encodeURIComponent(nombreCategoria)}`}
                 className="hover:text-brand-600 transition-colors"
               >
-                {categoria}
+                {nombreCategoria}
               </Link>
             </li>
             <li aria-hidden="true">
@@ -128,13 +136,13 @@ export default async function ProductoPage({ params }: ProductoPageProps) {
               <header className="flex-1 p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-2 py-0.5 rounded-md bg-amber-400 text-slate-900 text-[11px] font-black uppercase tracking-wider">
-                    {categoria}
+                    {nombreCategoria}
                   </span>
                   <StockBadge stock={stock} />
                 </div>
 
                 <p className="mt-4 text-xs font-bold uppercase tracking-widest text-slate-500">
-                  {marca}
+                  {nombreMarca}
                 </p>
                 <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                   {nombre}

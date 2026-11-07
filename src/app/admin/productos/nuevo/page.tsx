@@ -4,21 +4,29 @@ import React from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { ProductForm } from "@/components/forms/ProductForm";
-import { createProducto } from "@/lib/services/producto-service";
+import { createProducto, USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
 import { ProductoFormValues } from "@/lib/validations/producto";
 
 export default function NuevoProductoPage() {
   const { token } = useAuth();
 
   const handleSubmit = async (values: ProductoFormValues): Promise<Response> => {
-    if (!token) {
-      // Devolver una Response sintética de 401 para que el form lo maneje
+    if (!token && !USE_PRODUCT_MOCKS) {
       return new Response(
-        JSON.stringify({ non_field_errors: ["No estás autenticado. Por favor, iniciá sesión."] }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({
+          non_field_errors: [
+            "No estás autenticado. Por favor, iniciá sesión.",
+          ],
+        }),
+        {
+          status: 401,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
     }
-    return createProducto(values, token);
+    return createProducto(values, token ?? "");
   };
 
   return (

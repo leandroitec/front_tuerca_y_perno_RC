@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 import { Producto } from "@/types/producto";
-import { fetchProductos, deleteProducto } from "@/lib/services/producto-service";
+import { fetchProductos, deleteProducto, USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Button } from "@/components/ui/Button";
@@ -27,11 +27,11 @@ export default function ProductosAdminPage() {
 
   /** Carga la lista de productos desde la API */
   const loadProductos = useCallback(async () => {
-    if (!token) return;
+    if (!token && !USE_PRODUCT_MOCKS) return;
     setIsLoading(true);
     setFetchError(null);
     try {
-      const data = await fetchProductos(token);
+      const data = await fetchProductos(token ?? "");
       // Soporta tanto respuesta paginada (DRF) como array directo
       setProductos(Array.isArray(data) ? data : data.results);
     } catch (err) {
@@ -47,13 +47,17 @@ export default function ProductosAdminPage() {
 
   // Redirigir si no autenticado
   useEffect(() => {
-    if (!isAuthLoading && !isAuthenticated) {
+    if (
+      !USE_PRODUCT_MOCKS &&
+      !isAuthLoading &&
+      !isAuthenticated
+    ) {
       router.replace("/login");
     }
   }, [isAuthLoading, isAuthenticated, router]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (USE_PRODUCT_MOCKS || isAuthenticated) {
       loadProductos();
     }
   }, [isAuthenticated, loadProductos]);
@@ -67,11 +71,14 @@ export default function ProductosAdminPage() {
 
   /** Handler: confirmar la eliminación */
   const handleConfirmDelete = async () => {
-    if (!productoToDelete || !token) return;
+    if (!productoToDelete || (!token && !USE_PRODUCT_MOCKS)) return;
     setIsDeleting(true);
     setDeleteError(null);
     try {
-      const res = await deleteProducto(productoToDelete.id, token);
+      const res = await deleteProducto(
+        productoToDelete.id,
+        token ?? ""
+      );
       if (res.ok || res.status === 204) {
         setModalOpen(false);
         setProductoToDelete(null);
@@ -115,12 +122,18 @@ export default function ProductosAdminPage() {
     },
     {
       header: "Categoría",
-      accessor: "categoria",
+      accessor: (row) =>
+        typeof row.categoria === "string"
+          ? row.categoria
+          : row.categoria.nombre,
       className: "text-slate-600",
     },
     {
       header: "Marca",
-      accessor: "marca",
+      accessor: (row) =>
+        typeof row.marca === "string"
+          ? row.marca
+          : row.marca.nombre,
       className: "text-slate-600",
     },
     {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -13,29 +13,25 @@ import {
 import { InputField } from "@/components/ui/InputField";
 import { Button } from "@/components/ui/Button";
 
-/**
- * Categorías y marcas dummy — En producción, estos se obtienen via API.
- * Reemplazar con un fetch real cuando los endpoints estén disponibles.
- */
-const CATEGORIAS = [
-  { id: 1, nombre: "Tornillería y Bulonería" },
-  { id: 2, nombre: "Herramientas Manuales" },
-  { id: 3, nombre: "Herramientas Eléctricas" },
-  { id: 4, nombre: "Materiales de Construcción" },
-  { id: 5, nombre: "Plomería" },
-  { id: 6, nombre: "Electricidad" },
-  { id: 7, nombre: "Adhesivos y Selladores" },
-  { id: 8, nombre: "Corralón / Áridos" },
-];
+import {
+  MOCK_CATEGORIAS,
+  MOCK_MARCAS,
+} from "@/lib/mocks/producto-mock";
 
-const MARCAS = [
-  { id: 1, nombre: "Stanley" },
-  { id: 2, nombre: "Bosch" },
-  { id: 3, nombre: "Makita" },
-  { id: 4, nombre: "Bahco" },
-  { id: 5, nombre: "Tramontina" },
-  { id: 6, nombre: "Sin Marca (Genérico)" },
-];
+import { useAuth } from "@/context/AuthContext";
+import { USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
+
+interface CatalogoItem {
+  id: number;
+  nombre: string;
+}
+
+interface CatalogoResponse {
+  results: CatalogoItem[];
+}
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
 export interface ProductFormProps {
   /** Modo del formulario */
@@ -67,8 +63,97 @@ export function ProductForm({
   successRedirectPath = "/admin/productos",
 }: ProductFormProps) {
   const router = useRouter();
+  const { token } = useAuth();
+
+  const [categorias, setCategorias] = useState<CatalogoItem[]>([]);
+  const [marcas, setMarcas] = useState<CatalogoItem[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(!USE_PRODUCT_MOCKS);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
   const [serverErrors, setServerErrors] = useState<DjangoFieldErrors | null>(null);
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null);
+
+useEffect(() => {
+  // Si estamos trabajando con mocks, utilizamos los datos simulados.
+  if (USE_PRODUCT_MOCKS) {
+    setCategorias(MOCK_CATEGORIAS);
+    setMarcas(MOCK_MARCAS);
+    setCatalogLoading(false);
+    return;
+  }
+
+  // Para consultar los catálogos reales necesitamos el token.
+  if (!token) {
+    setCatalogLoading(false);
+    setCatalogError("No se pudo obtener el token de autenticación.");
+    return;
+  }
+
+  let cancelled = false;
+
+  const cargarCatalogos = async () => {
+    setCatalogLoading(true);
+    setCatalogError(null);
+
+    try {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const [categoriasResponse, marcasResponse] = await Promise.all([
+        fetch(`${API_BASE}/api/categorias/`, {
+          headers,
+          cache: "no-store",
+        }),
+        fetch(`${API_BASE}/api/marcas/`, {
+          headers,
+          cache: "no-store",
+        }),
+      ]);
+
+      if (!categoriasResponse.ok || !marcasResponse.ok) {
+        throw new Error("No se pudieron obtener las categorías y marcas.");
+      }
+
+      const [categoriasData, marcasData]: [
+        CatalogoResponse,
+        CatalogoResponse
+      ] = await Promise.all([
+        categoriasResponse.json(),
+        marcasResponse.json(),
+      ]);
+
+      if (
+        !Array.isArray(categoriasData.results) ||
+        !Array.isArray(marcasData.results)
+      ) {
+        throw new Error("La respuesta del servidor tiene un formato inesperado.");
+      }
+
+      if (!cancelled) {
+        setCategorias(categoriasData.results);
+        setMarcas(marcasData.results);
+      }
+    } catch (error) {
+      if (!cancelled) {
+        setCatalogError(
+          error instanceof Error
+            ? error.message
+            : "Error al cargar categorías y marcas."
+        );
+      }
+    } finally {
+      if (!cancelled) {
+        setCatalogLoading(false);
+      }
+    }
+  };
+
+  cargarCatalogos();
+
+  return () => {
+    cancelled = true;
+  };
+}, [token]);
 
   const {
     register,
@@ -201,13 +286,28 @@ export function ProductForm({
         </div>
       )}
 
+      {catalogLoading && (
+        <p className="text-sm text-slate-500">
+          Cargando categorías y marcas...
+        </p>
+      )}
+
+      {catalogError && (
+        <div
+          role="alert"
+          className="px-4 py-3 rounded-xl bg-red-50 border border-red-300 text-red-800 text-sm"
+        >
+          {catalogError}
+        </div>
+      )}
+
       {/* ── Fila 1: Nombre ──────────────────────────────────────────────── */}
       <InputField
         label="Nombre del Producto *"
         id="nombre"
         placeholder="Ej: Tornillo hexagonal 1/2 × 2″ galvanizado"
         error={errors.nombre}
-        disabled={isSubmitting}
+        disabled={isSubmitting || catalogLoading || !!catalogError}
         {...register("nombre")}
       />
 
@@ -264,7 +364,7 @@ export function ProductForm({
             {...register("categoria_id")}
           >
             <option value="">— Seleccioná una categoría —</option>
-            {CATEGORIAS.map((cat) => (
+            {categorias.map((cat) => (
               <option key={cat.id} value={String(cat.id)}>
                 {cat.nombre}
               </option>
@@ -311,7 +411,7 @@ export function ProductForm({
             {...register("marca_id")}
           >
             <option value="">— Seleccioná una marca —</option>
-            {MARCAS.map((marca) => (
+            {marcas.map((marca) => (
               <option key={marca.id} value={String(marca.id)}>
                 {marca.nombre}
               </option>

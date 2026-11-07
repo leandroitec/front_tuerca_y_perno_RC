@@ -1,11 +1,26 @@
-import { Producto, ProductoDetalle, ProductosResponse } from "@/types/producto";
+import {
+  ProductoDetalle,
+  ProductosResponse,
+} from "@/types/producto";
+
 import { ProductoFormValues } from "@/lib/validations/producto";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import {
+  mockFetchProductos,
+  mockFetchProductoById,
+  mockCreateProducto,
+  mockUpdateProducto,
+  mockDeleteProducto,
+} from "@/lib/mocks/producto-mock";
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+export const USE_PRODUCT_MOCKS =
+  process.env.NEXT_PUBLIC_USE_PRODUCT_MOCKS === "true";
 
 /**
- * Construye los headers base con Authorization JWT.
- * Lanza error si no hay token disponible.
+ * Construye los headers de autenticación.
  */
 function buildHeaders(token: string): HeadersInit {
   return {
@@ -15,22 +30,31 @@ function buildHeaders(token: string): HeadersInit {
 }
 
 /**
- * Transforma los valores del formulario (todos string para el input HTML)
- * al payload tipado que espera el backend Django.
+ * Convierte los valores del formulario al formato de Django.
+ * Los selectores HTML devuelven strings.
+ * La API recibe números enteros.
  */
 function toApiPayload(values: ProductoFormValues) {
   return {
     nombre: values.nombre,
-    precio: parseFloat(values.precio),
-    stock: parseInt(values.stock, 10),
-    categoria_id: parseInt(values.categoria_id, 10),
-    marca_id: parseInt(values.marca_id, 10),
+    precio: Number(values.precio),
+    stock: Number.parseInt(values.stock, 10),
+    categoria: Number(values.categoria_id),
+    marca: Number(values.marca_id),
     descripcion: values.descripcion ?? "",
   };
 }
 
-/** GET /api/productos/ — Obtiene la lista paginada de productos */
-export async function fetchProductos(token: string): Promise<ProductosResponse> {
+/**
+ * GET /api/productos/
+ */
+export async function fetchProductos(
+  token: string
+): Promise<ProductosResponse> {
+  if (USE_PRODUCT_MOCKS) {
+    return mockFetchProductos();
+  }
+
   const res = await fetch(`${API_BASE}/api/productos/`, {
     headers: buildHeaders(token),
     cache: "no-store",
@@ -43,11 +67,17 @@ export async function fetchProductos(token: string): Promise<ProductosResponse> 
   return res.json();
 }
 
-/** GET /api/productos/{id}/ — Obtiene el detalle de un producto */
+/**
+ * GET /api/productos/{id}/
+ */
 export async function fetchProductoById(
   id: string | number,
   token: string
 ): Promise<ProductoDetalle> {
+  if (USE_PRODUCT_MOCKS) {
+    return mockFetchProductoById(id);
+  }
+
   const res = await fetch(`${API_BASE}/api/productos/${id}/`, {
     headers: buildHeaders(token),
     cache: "no-store",
@@ -60,11 +90,17 @@ export async function fetchProductoById(
   return res.json();
 }
 
-/** POST /api/productos/ — Crea un nuevo producto */
+/**
+ * POST /api/productos/
+ */
 export async function createProducto(
   values: ProductoFormValues,
   token: string
 ): Promise<Response> {
+  if (USE_PRODUCT_MOCKS) {
+    return mockCreateProducto(values);
+  }
+
   return fetch(`${API_BASE}/api/productos/`, {
     method: "POST",
     headers: buildHeaders(token),
@@ -72,12 +108,18 @@ export async function createProducto(
   });
 }
 
-/** PUT /api/productos/{id}/ — Actualiza un producto existente */
+/**
+ * PUT /api/productos/{id}/
+ */
 export async function updateProducto(
   id: string | number,
   values: ProductoFormValues,
   token: string
 ): Promise<Response> {
+  if (USE_PRODUCT_MOCKS) {
+    return mockUpdateProducto(id, values);
+  }
+
   return fetch(`${API_BASE}/api/productos/${id}/`, {
     method: "PUT",
     headers: buildHeaders(token),
@@ -85,11 +127,17 @@ export async function updateProducto(
   });
 }
 
-/** DELETE /api/productos/{id}/ — Elimina un producto */
+/**
+ * DELETE /api/productos/{id}/
+ */
 export async function deleteProducto(
   id: string | number,
   token: string
 ): Promise<Response> {
+  if (USE_PRODUCT_MOCKS) {
+    return mockDeleteProducto(id);
+  }
+
   return fetch(`${API_BASE}/api/productos/${id}/`, {
     method: "DELETE",
     headers: buildHeaders(token),

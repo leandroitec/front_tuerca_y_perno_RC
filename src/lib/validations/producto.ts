@@ -6,13 +6,13 @@ import { z } from "zod";
  */
 export const productoSchema = z.object({
   nombre: z
-    .string({ required_error: "El nombre es obligatorio." })
+    .string({ error: "El nombre es obligatorio." })
     .min(2, "El nombre debe tener al menos 2 caracteres.")
     .max(150, "El nombre no puede superar los 150 caracteres.")
     .trim(),
 
   precio: z
-    .string({ required_error: "El precio es obligatorio." })
+    .string({ error: "El precio es obligatorio." })
     .min(1, "El precio es obligatorio.")
     .refine((val) => !isNaN(parseFloat(val)), {
       message: "El precio debe ser un número válido.",
@@ -22,7 +22,7 @@ export const productoSchema = z.object({
     }),
 
   stock: z
-    .string({ required_error: "El stock es obligatorio." })
+    .string({ error: "El stock es obligatorio." })
     .min(1, "El stock es obligatorio.")
     .refine((val) => !isNaN(parseInt(val, 10)), {
       message: "El stock debe ser un número entero.",
@@ -35,14 +35,14 @@ export const productoSchema = z.object({
     }),
 
   categoria_id: z
-    .string({ required_error: "La categoría es obligatoria." })
+    .string({ error: "La categoría es obligatoria." })
     .min(1, "La categoría es obligatoria.")
     .refine((val) => !isNaN(parseInt(val, 10)) && parseInt(val, 10) > 0, {
       message: "Seleccioná una categoría válida.",
     }),
 
   marca_id: z
-    .string({ required_error: "La marca es obligatoria." })
+    .string({ error: "La marca es obligatoria." })
     .min(1, "La marca es obligatoria.")
     .refine((val) => !isNaN(parseInt(val, 10)) && parseInt(val, 10) > 0, {
       message: "Seleccioná una marca válida.",

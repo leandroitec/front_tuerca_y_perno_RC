@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 import { ProductoDetalle } from "@/types/producto";
-import { fetchProductoById, updateProducto } from "@/lib/services/producto-service";
+import { fetchProductoById, updateProducto, USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
 import { ProductForm } from "@/components/forms/ProductForm";
 import { ProductoFormValues } from "@/lib/validations/producto";
 
@@ -23,20 +23,24 @@ export default function EditarProductoPage() {
 
   // Redirigir si no autenticado
   useEffect(() => {
-    if (!isAuthLoading && !isAuthenticated) {
+    if (
+      !USE_PRODUCT_MOCKS &&
+      !isAuthLoading &&
+      !isAuthenticated
+    ) {
       router.replace("/login");
     }
   }, [isAuthLoading, isAuthenticated, router]);
 
   // Cargar datos actuales del producto
   useEffect(() => {
-    if (!token || !id) return;
+    if ((!token && !USE_PRODUCT_MOCKS) || !id) return;
 
     const load = async () => {
       setIsLoading(true);
       setFetchError(null);
       try {
-        const data = await fetchProductoById(id, token);
+        const data = await fetchProductoById(id, token ?? "");
         setProducto(data);
       } catch (err) {
         setFetchError(
@@ -54,13 +58,22 @@ export default function EditarProductoPage() {
 
   /** Adaptador del service para el ProductForm */
   const handleSubmit = async (values: ProductoFormValues): Promise<Response> => {
-    if (!token) {
+    if (!token && !USE_PRODUCT_MOCKS) {
       return new Response(
-        JSON.stringify({ non_field_errors: ["No estás autenticado. Por favor, iniciá sesión."] }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({
+          non_field_errors: [
+            "No estás autenticado. Por favor, iniciá sesión.",
+          ],
+        }),
+        {
+          status: 401,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
     }
-    return updateProducto(id, values, token);
+    return updateProducto(id, values, token ?? "");
   };
 
   /**
@@ -71,14 +84,11 @@ export default function EditarProductoPage() {
     nombre: p.nombre,
     precio: String(parseFloat(p.precio)),
     stock: String(p.stock),
-    // categoria y marca vienen como string del listado; para el edit necesitamos IDs.
-    // Si el backend en /api/productos/{id}/ devuelve categoria_id y marca_id, usarlos.
-    // De lo contrario, el usuario deberá re-seleccionarlos. Ajustar cuando el backend retorne los IDs.
-    categoria_id: (p as unknown as Record<string, unknown>)["categoria_id"]
-      ? String((p as unknown as Record<string, unknown>)["categoria_id"])
+    categoria_id: p.categoria_id
+      ? String(p.categoria_id)
       : "",
-    marca_id: (p as unknown as Record<string, unknown>)["marca_id"]
-      ? String((p as unknown as Record<string, unknown>)["marca_id"])
+    marca_id: p.marca_id
+      ? String(p.marca_id)
       : "",
     descripcion: p.descripcion ?? "",
   });
