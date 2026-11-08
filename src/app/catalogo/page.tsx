@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 type SearchParams = Record<string, string | string[] | undefined>;
 
 interface CatalogoPageProps {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }
 
 type QueryCatalogo = ProductosQuery & { page: number };
@@ -115,10 +115,10 @@ function Paginacion({ query, hayAnterior, haySiguiente }: PaginacionProps) {
 }
 
 export default async function CatalogoPage({ searchParams }: CatalogoPageProps) {
-  const query = parsearQuery(searchParams);
+  const parametros = await searchParams;
+  const query = parsearQuery(parametros);
   const { count, next, previous, results } = await obtenerProductos(query);
   const hayFiltros = Boolean(query.categoria || query.search);
-
   return (
     <div className="min-h-full bg-slate-100">
       {/* Encabezado de la sección */}

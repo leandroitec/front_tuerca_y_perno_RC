@@ -71,6 +71,12 @@ export interface ProductCardProps {
 export function ProductCard({ producto }: ProductCardProps) {
   const { id, nombre, marca, categoria, precio, stock } = producto;
 
+  const nombreMarca =
+    typeof marca === "string" ? marca : marca.nombre;
+
+  const nombreCategoria =
+    typeof categoria === "string" ? categoria : categoria.nombre;
+
   return (
     <Link
       href={`/catalogo/${id}`}
@@ -94,14 +100,14 @@ export function ProductCard({ producto }: ProductCardProps) {
           aria-hidden="true"
         />
         <span className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-amber-400 text-slate-900 text-[10px] font-black uppercase tracking-wider">
-          {categoria}
+          {nombreCategoria}
         </span>
       </div>
 
       {/* Información del producto */}
       <div className="flex flex-col flex-1 p-5">
         <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-          {marca}
+          {nombreMarca}
         </p>
         <h2 className="mt-1 text-base font-bold leading-snug text-slate-900 line-clamp-2 transition-colors group-hover:text-brand-600">
           {nombre}

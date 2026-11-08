@@ -1,20 +1,36 @@
 /**
  * Tipos del módulo de Catálogo.
- * Reflejan los contratos de la API REST de Django (DRF) para /api/productos/.
+ * Reflejan los contratos de la API REST de Django (DRF).
  */
+
+export interface CategoriaProducto {
+  id: number;
+  nombre: string;
+  descripcion: string;
+}
+
+export interface MarcaProducto {
+  id: number;
+  nombre: string;
+}
 
 /** Producto tal como lo devuelve el listado GET /api/productos/ */
 export interface Producto {
   id: number;
   nombre: string;
-  /** DRF serializa los DecimalField como string (ej. "125000.00") */
+  descripcion?: string;
   precio: string;
   stock: number;
-  categoria: string;
-  marca: string;
+
+  // Django devuelve objetos; MOCK puede devolver strings.
+  categoria: CategoriaProducto | string;
+  categoria_id?: number;
+
+  marca: MarcaProducto | string;
+  marca_id?: number;
 }
 
-/** Producto devuelto por GET /api/productos/{id}/ (incluye la descripción) */
+/** Producto devuelto por GET /api/productos/{id}/ */
 export interface ProductoDetalle extends Producto {
   descripcion: string;
 }
@@ -39,11 +55,10 @@ export interface ProductosQuery {
 /** Acciones aceptadas por POST /api/productos/{id}/actualizar-stock/ */
 export type AccionStock = "sumar" | "restar" | "fijar";
 
-/** Payload de POST /api/productos/{id}/actualizar-stock/ */
 export interface ActualizarStockPayload {
   accion: AccionStock;
   cantidad: number;
 }
 
-/** Estado visual del stock que se muestra en el Badge */
+/** Estado visual del stock */
 export type EstadoStock = "EN_STOCK" | "ULTIMAS_UNIDADES" | "SIN_STOCK";
