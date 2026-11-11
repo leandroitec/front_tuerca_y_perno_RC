@@ -34,6 +34,15 @@ describe("Test 1 · loginSchema (Zod)", () => {
       );
     });
 
+    it("rechaza un usuario compuesto sólo por espacios", () => {
+      const resultado = loginSchema.safeParse({ username: "   ", password: "admin123" });
+
+      expect(resultado.success).toBe(false);
+      expect(erroresDe({ username: "   ", password: "admin123" }, "username")).toContain(
+        "El nombre de usuario es obligatorio"
+      );
+    });
+
     it("rechaza la contraseña vacía con su mensaje", () => {
       expect(erroresDe({ username: "admin", password: "" }, "password")).toContain(
         "La contraseña es obligatoria"
