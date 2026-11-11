@@ -104,6 +104,8 @@ NEXT_PUBLIC_USE_VENTA_MOCKS=true
 
 > ⚠️ Las variables `NEXT_PUBLIC_*` se leen al iniciar la aplicación: después de modificarlas hay que reiniciar `npm run dev`.
 
+> 🔄 Para conectar el frontend al backend Django en lugar de los datos simulados, ver la sección [Pasar de datos simulados (mocks) al backend Django](#-pasar-de-datos-simulados-mocks-al-backend-django).
+
 ### 4. Iniciar el servidor de desarrollo
 
 ```bash
@@ -195,6 +197,72 @@ Las rutas `/admin/*` están protegidas por `middleware.ts` (redirige a `/login` 
 | `POST` | `/api/ventas/{id}/finalizar-venta/` | Finalizar una venta pendiente |
 
 Todas las peticiones autenticadas envían el header `Authorization: Bearer <token>`.
+
+---
+
+## 🔄 Pasar de datos simulados (mocks) al backend Django
+
+Por defecto el proyecto puede trabajar con **datos simulados**, para probar la interfaz sin el backend. Para usar los **datos reales** de Django hay que cambiar la configuración en 4 pasos.
+
+### ¿Qué controla cada variable?
+
+| Variable | `true` (mocks) | `false` (backend Django) |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_USE_PRODUCT_MOCKS` | Login simulado y productos guardados en el navegador (`localStorage`) | Login con `POST /api/auth/token/` y productos desde `/api/productos/` |
+| `NEXT_PUBLIC_USE_VENTA_MOCKS` | Ventas de ejemplo en memoria (se reinician al recargar) | Ventas desde `/api/ventas/` |
+
+### Paso 1 — Levantar el backend
+
+En la carpeta del repositorio de Django:
+
+```bash
+source .venv/bin/activate
+python manage.py migrate
+python manage.py poblar_datos
+python manage.py runserver
+```
+
+Verificar que responda en [http://127.0.0.1:8000/api/docs/](http://127.0.0.1:8000/api/docs/) (documentación Swagger).
+
+> El comando `poblar_datos` crea usuarios, categorías, productos y clientes, pero **no crea ventas**: se pueden cargar desde el panel de Django en [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/).
+
+### Paso 2 — Cambiar el `.env.local`
+
+```env
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_USE_PRODUCT_MOCKS=false
+NEXT_PUBLIC_USE_VENTA_MOCKS=false
+```
+
+> Las dos variables de mocks son independientes: por ejemplo, se pueden usar productos reales (`false`) y ventas simuladas (`true`).
+
+### Paso 3 — Reiniciar el servidor de desarrollo
+
+Las variables `NEXT_PUBLIC_*` sólo se leen al arrancar. Cortar el servidor con `Ctrl + C` y volver a iniciarlo:
+
+```bash
+npm run dev
+```
+
+### Paso 4 — Volver a iniciar sesión
+
+El token del login simulado no es válido para Django (y viceversa). Cerrar sesión, o borrar la cookie `auth_token` desde las herramientas del navegador (F12 → Application → Cookies), e ingresar con un usuario del backend: `admin` / `admin123` o `vendedor` / `vendedor123`.
+
+### ✅ Cómo saber que se están usando datos reales
+
+- En **Gestión de Ventas** desaparece la etiqueta gris **"Datos simulados"**.
+- En la pestaña **Network** de las herramientas del navegador (F12) aparecen peticiones a `http://127.0.0.1:8000/api/...`.
+- Los productos y ventas que se ven son los cargados en Django.
+
+### ⚠️ Limitaciones conocidas con el backend real
+
+- **Roles:** el token de Django no incluye el rol del usuario, por lo que el frontend toma a todos como **Vendedor** (no se accede a Gestión de Productos). Se resuelve agregando `rol` al token en el backend.
+- **Catálogo público:** el backend exige iniciar sesión para listar productos, y el catálogo los pide sin token, por lo que muestra un error.
+- **Paginación:** el backend devuelve las ventas de a 10; el historial muestra la primera página.
+
+### ↩️ Volver a los datos simulados
+
+Poner las dos variables en `true`, reiniciar `npm run dev` y volver a iniciar sesión.
 
 ---
 
