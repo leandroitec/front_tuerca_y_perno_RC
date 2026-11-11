@@ -27,5 +27,5 @@ export function formatCurrency(valor: number | string, fallback = "—"): string
     return fallback;
   }
 
-  return formateadorARS.format(numero).replace(/ /g, " ");
+  return formateadorARS.format(numero).replace(/\u00a0/g, " ");
 }
