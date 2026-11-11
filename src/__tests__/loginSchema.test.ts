@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/lib/validations/auth";
 
 /** Devuelve los mensajes de error de un campo, o [] si el campo es válido. */
@@ -67,6 +68,27 @@ describe("Test 1 · loginSchema (Zod)", () => {
     it("rechaza un valor que no es un objeto", () => {
       expect(loginSchema.safeParse(null).success).toBe(false);
       expect(loginSchema.safeParse("admin:admin123").success).toBe(false);
+    });
+  });
+
+  describe("integración con react-hook-form (zodResolver)", () => {
+    const opciones = { fields: {}, shouldUseNativeValidation: false } as const;
+
+    it("convierte los errores de Zod en mensajes del formulario (no lanza)", async () => {
+      const resolver = zodResolver(loginSchema);
+      const resultado = await resolver({ username: "", password: "" }, undefined, opciones);
+
+      expect(resultado.values).toEqual({});
+      expect(resultado.errors.username?.message).toBe("El nombre de usuario es obligatorio");
+      expect(resultado.errors.password?.message).toBe("La contraseña es obligatoria");
+    });
+
+    it("devuelve los valores procesados cuando son válidos", async () => {
+      const resolver = zodResolver(loginSchema);
+      const resultado = await resolver({ username: "  admin ", password: "admin123" }, undefined, opciones);
+
+      expect(resultado.errors).toEqual({});
+      expect(resultado.values).toEqual({ username: "admin", password: "admin123" });
     });
   });
 });
