@@ -7,7 +7,12 @@ import React from "react";
  */
 
 /** Estados soportados con color semántico propio. */
-export type BadgeStatusType = "completado" | "pendiente" | "critico" | "optimo";
+export type BadgeStatusType =
+  | "completado"
+  | "finalizada"
+  | "pendiente"
+  | "critico"
+  | "optimo";
 
 /** Variantes de color semánticas (Verde, Amarillo, Rojo, Gris). */
 export type BadgeVariant = "success" | "warning" | "danger" | "neutral";
@@ -19,6 +24,7 @@ export interface BadgeStatusConfig {
 
 const STATUS_CONFIG: Record<BadgeStatusType, BadgeStatusConfig> = {
   completado: { label: "Completado", variant: "success" },
+  finalizada: { label: "Finalizada", variant: "success" },
   optimo: { label: "Óptimo", variant: "success" },
   pendiente: { label: "Pendiente", variant: "warning" },
   critico: { label: "Crítico", variant: "danger" },
