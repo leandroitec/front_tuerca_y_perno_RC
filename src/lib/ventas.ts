@@ -1,4 +1,5 @@
 import { EstadoVenta, ResumenVentas, Venta } from "@/types/venta";
+import { formatCurrency } from "@/lib/utils";
 
 /**
  * Utilidades puras del módulo de Ventas (sin React ni red),
@@ -61,15 +62,9 @@ export function actualizarEstadoVenta(
   return ventas.map((venta) => (venta.id === id ? { ...venta, estado } : venta));
 }
 
-const formateadorMoneda = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  minimumFractionDigits: 2,
-});
-
-/** 125000 -> "$ 125.000,00" */
+/** 125000 -> "$ 125.000,00" (usa el formato compartido de src/lib/utils.ts) */
 export function formatearMoneda(valor: number): string {
-  return formateadorMoneda.format(valor);
+  return formatCurrency(valor);
 }
 
 const formateadorFecha = new Intl.DateTimeFormat("es-AR", {
