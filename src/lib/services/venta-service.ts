@@ -29,18 +29,15 @@ function buildHeaders(token: string): HeadersInit {
 
 // ── Adaptador API (Django) -> modelo del frontend ─────────────────────────
 
-const ESTADOS_API: Partial<Record<EstadoVentaApi, EstadoVenta>> = {
+const ESTADOS_API: Record<EstadoVentaApi, EstadoVenta> = {
   PENDIENTE: "pendiente",
   COMPLETADA: "finalizada",
+  CANCELADA: "cancelada",
 };
 
-/**
- * Convierte una venta de Django al modelo de la UI.
- * Devuelve null para estados que el frontend no maneja (CANCELADA).
- */
-export function adaptarVentaApi(venta: VentaApi): Venta | null {
+/** Convierte una venta de Django al modelo de la UI. */
+export function adaptarVentaApi(venta: VentaApi): Venta {
   const estado = ESTADOS_API[venta.estado];
-  if (!estado) return null;
 
   const { username, first_name, last_name } = venta.usuario_vendedor;
   const nombreCompleto = [first_name, last_name].filter(Boolean).join(" ").trim();
@@ -56,7 +53,7 @@ export function adaptarVentaApi(venta: VentaApi): Venta | null {
 }
 
 function adaptarLista(ventas: VentaApi[]): Venta[] {
-  return ventas.map(adaptarVentaApi).filter((v): v is Venta => v !== null);
+  return ventas.map(adaptarVentaApi);
 }
 
 // ── Endpoints ─────────────────────────────────────────────────────────────

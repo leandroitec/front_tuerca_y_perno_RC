@@ -41,17 +41,18 @@ function diasAtras(dias: number, hora: number, minuto: number, ahora: Date): str
   return fecha.toISOString();
 }
 
-/** Ventas iniciales: 4 de hoy y 6 de días anteriores, ordenadas por fecha descendente. */
+/** Ventas iniciales: 5 de hoy y 6 de días anteriores, ordenadas por fecha descendente. */
 export function crearVentasIniciales(ahora: Date = new Date()): Venta[] {
   const ventas: Venta[] = [
-    { id: 110, fecha: horaDeHoy(0.95, ahora), cliente: "Juan Rodríguez", total: 45800, estado: "pendiente", vendedor: "vendedor" },
-    { id: 109, fecha: horaDeHoy(0.8, ahora), cliente: "Metalúrgica Central S.A.", total: 312500, estado: "pendiente", vendedor: "admin" },
+    { id: 111, fecha: horaDeHoy(0.95, ahora), cliente: "Juan Rodríguez", total: 45800, estado: "pendiente", vendedor: "vendedor" },
+    { id: 110, fecha: horaDeHoy(0.8, ahora), cliente: "Metalúrgica Central S.A.", total: 312500, estado: "pendiente", vendedor: "admin" },
+    { id: 109, fecha: horaDeHoy(0.65, ahora), cliente: "Taller El Tornillo", total: 27400, estado: "cancelada", vendedor: "admin" },
     { id: 108, fecha: horaDeHoy(0.55, ahora), cliente: "Constructora Gómez Hnos.", total: 187350, estado: "finalizada", vendedor: "vendedor" },
     { id: 107, fecha: horaDeHoy(0.3, ahora), cliente: "Consumidor Final", total: 9000, estado: "finalizada", vendedor: "vendedor" },
     { id: 106, fecha: diasAtras(1, 17, 40, ahora), cliente: "Taller El Tornillo", total: 64200, estado: "pendiente", vendedor: "vendedor" },
     { id: 105, fecha: diasAtras(1, 11, 5, ahora), cliente: "Juan Rodríguez", total: 85000, estado: "finalizada", vendedor: "admin" },
     { id: 104, fecha: diasAtras(2, 16, 20, ahora), cliente: "Constructora Gómez Hnos.", total: 540000, estado: "finalizada", vendedor: "vendedor" },
-    { id: 103, fecha: diasAtras(3, 9, 45, ahora), cliente: "Consumidor Final", total: 12600, estado: "finalizada", vendedor: "vendedor" },
+    { id: 103, fecha: diasAtras(3, 9, 45, ahora), cliente: "Consumidor Final", total: 12600, estado: "cancelada", vendedor: "vendedor" },
     { id: 102, fecha: diasAtras(4, 15, 10, ahora), cliente: "Metalúrgica Central S.A.", total: 228900, estado: "finalizada", vendedor: "admin" },
     { id: 101, fecha: diasAtras(6, 10, 30, ahora), cliente: "Taller El Tornillo", total: 32000, estado: "finalizada", vendedor: "vendedor" },
   ];

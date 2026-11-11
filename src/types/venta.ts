@@ -6,7 +6,7 @@
  */
 
 /** Estados de una venta en el frontend. */
-export type EstadoVenta = "pendiente" | "finalizada";
+export type EstadoVenta = "pendiente" | "finalizada" | "cancelada";
 
 /** Venta tal como la consume la interfaz. */
 export interface Venta {
@@ -24,12 +24,16 @@ export interface Venta {
 
 /** Resumen calculado de un conjunto de ventas (ej.: las del día). */
 export interface ResumenVentas {
+  /** Todas las ventas, incluidas las canceladas. */
   cantidad: number;
+  /** Importe facturado: pendientes + finalizadas (sin canceladas). */
   total: number;
   pendientes: number;
   finalizadas: number;
+  canceladas: number;
   totalPendiente: number;
   totalFinalizado: number;
+  totalCancelado: number;
 }
 
 /** Respuesta de POST /api/ventas/{id}/finalizar-venta/ */

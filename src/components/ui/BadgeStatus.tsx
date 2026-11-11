@@ -10,6 +10,7 @@ import React from "react";
 export type BadgeStatusType =
   | "completado"
   | "finalizada"
+  | "cancelada"
   | "pendiente"
   | "critico"
   | "optimo";
@@ -25,6 +26,7 @@ export interface BadgeStatusConfig {
 const STATUS_CONFIG: Record<BadgeStatusType, BadgeStatusConfig> = {
   completado: { label: "Completado", variant: "success" },
   finalizada: { label: "Finalizada", variant: "success" },
+  cancelada: { label: "Cancelada", variant: "neutral" },
   optimo: { label: "Óptimo", variant: "success" },
   pendiente: { label: "Pendiente", variant: "warning" },
   critico: { label: "Crítico", variant: "danger" },

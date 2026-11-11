@@ -20,17 +20,35 @@ export function calcularResumenVentas(ventas: readonly Venta[]): ResumenVentas {
   return ventas.reduce<ResumenVentas>(
     (acc, venta) => {
       acc.cantidad += 1;
-      acc.total += venta.total;
-      if (venta.estado === "pendiente") {
-        acc.pendientes += 1;
-        acc.totalPendiente += venta.total;
-      } else {
-        acc.finalizadas += 1;
-        acc.totalFinalizado += venta.total;
+      switch (venta.estado) {
+        case "pendiente":
+          acc.pendientes += 1;
+          acc.totalPendiente += venta.total;
+          acc.total += venta.total;
+          break;
+        case "finalizada":
+          acc.finalizadas += 1;
+          acc.totalFinalizado += venta.total;
+          acc.total += venta.total;
+          break;
+        case "cancelada":
+          // Las canceladas se cuentan, pero no suman al importe facturado.
+          acc.canceladas += 1;
+          acc.totalCancelado += venta.total;
+          break;
       }
       return acc;
     },
-    { cantidad: 0, total: 0, pendientes: 0, finalizadas: 0, totalPendiente: 0, totalFinalizado: 0 }
+    {
+      cantidad: 0,
+      total: 0,
+      pendientes: 0,
+      finalizadas: 0,
+      canceladas: 0,
+      totalPendiente: 0,
+      totalFinalizado: 0,
+      totalCancelado: 0,
+    }
   );
 }
 

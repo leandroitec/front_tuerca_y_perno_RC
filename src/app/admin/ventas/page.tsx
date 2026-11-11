@@ -150,7 +150,14 @@ export default function VentasAdminPage() {
     {
       header: "Total",
       accessor: (v) => (
-        <span className="font-semibold text-slate-900 whitespace-nowrap">{formatearMoneda(v.total)}</span>
+        <span
+          className={`font-semibold whitespace-nowrap ${
+            v.estado === "cancelada" ? "text-slate-400 line-through" : "text-slate-900"
+          }`}
+          title={v.estado === "cancelada" ? "Venta cancelada: no suma al facturado" : undefined}
+        >
+          {formatearMoneda(v.total)}
+        </span>
       ),
       className: "text-right",
     },
@@ -234,14 +241,18 @@ export default function VentasAdminPage() {
             <ResumenCard
               titulo="Ventas de hoy"
               valor={String(resumen.cantidad)}
-              detalle={resumen.cantidad === 1 ? "1 transacción registrada" : `${resumen.cantidad} transacciones registradas`}
+              detalle={
+                resumen.canceladas === 0
+                  ? "Ninguna cancelada"
+                  : `${resumen.canceladas} cancelada${resumen.canceladas !== 1 ? "s" : ""} (${formatearMoneda(resumen.totalCancelado)})`
+              }
               icon={Receipt}
               acento="bg-slate-100 text-slate-700"
             />
             <ResumenCard
               titulo="Facturado hoy"
               valor={formatearMoneda(resumen.total)}
-              detalle="Pendientes + finalizadas"
+              detalle="Pendientes + finalizadas (sin canceladas)"
               icon={Wallet}
               acento="bg-brand-100 text-brand-700"
             />
