@@ -46,18 +46,36 @@ export const Navbar = () => {
           </Link>
 
           {/* Navegación central: estilo panel de instrumentos */}
-          <nav className="hidden md:flex items-center gap-1 font-heading uppercase tracking-wider text-sm">
+          <nav className="hidden lg:flex items-center gap-1 font-heading uppercase tracking-wider text-xs xl:text-sm">
             <Link
               href="/"
-              className="px-3 py-1.5 font-bold text-slate-300 hover:text-white hover:bg-slate-900 border-2 border-transparent hover:border-slate-800 transition-colors"
+              className="px-2.5 py-1.5 font-bold text-slate-300 hover:text-white hover:bg-slate-900 border-2 border-transparent hover:border-slate-800 transition-colors"
             >
               INICIO
             </Link>
             <Link
               href="/catalogo"
-              className="px-3 py-1.5 font-bold text-slate-300 hover:text-white hover:bg-slate-900 border-2 border-transparent hover:border-slate-800 transition-colors"
+              className="px-2.5 py-1.5 font-bold text-slate-300 hover:text-white hover:bg-slate-900 border-2 border-transparent hover:border-slate-800 transition-colors"
             >
               CATÁLOGO
+            </Link>
+            <Link
+              href="/quienes-somos"
+              className="px-2.5 py-1.5 font-bold text-slate-300 hover:text-white hover:bg-slate-900 border-2 border-transparent hover:border-slate-800 transition-colors"
+            >
+              QUIÉNES SOMOS
+            </Link>
+            <Link
+              href="/ubicacion"
+              className="px-2.5 py-1.5 font-bold text-slate-300 hover:text-white hover:bg-slate-900 border-2 border-transparent hover:border-slate-800 transition-colors"
+            >
+              UBICACIÓN
+            </Link>
+            <Link
+              href="/contacto"
+              className="px-2.5 py-1.5 font-bold text-slate-300 hover:text-white hover:bg-slate-900 border-2 border-transparent hover:border-slate-800 transition-colors"
+            >
+              CONTACTO
             </Link>
             {isAuthenticated && user && (
               <Link
@@ -65,7 +83,7 @@ export const Navbar = () => {
                 className="ml-2 px-3 py-1.5 font-bold text-primary bg-slate-900 hover:bg-slate-800 border-2 border-primary/50 hover:border-primary flex items-center gap-2 transition-all shadow-[2px_2px_0px_0px_#000]"
               >
                 <span className="w-2 h-2 rounded-none bg-primary animate-pulse border border-black"></span>
-                <span>PANEL ADMINISTRACIÓN</span>
+                <span>PANEL</span>
               </Link>
             )}
           </nav>
