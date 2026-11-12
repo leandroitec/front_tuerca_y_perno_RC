@@ -56,6 +56,12 @@ export const Navbar = () => {
             >
               Inicio
             </Link>
+            <Link
+              href="/catalogo"
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Catálogo
+            </Link>
             {isAuthenticated && user && (
               <Link
                 href="/admin"

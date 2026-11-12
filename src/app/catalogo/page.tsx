@@ -6,8 +6,6 @@ import FilterBar from "@/components/ui/FilterBar";
 import ProductCard from "@/components/ui/ProductCard";
 import type { ProductosQuery, ProductosResponse } from "@/types/producto";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-
 export const metadata: Metadata = {
   title: "Catálogo de Productos | Tuerca y Perno RC",
   description:
@@ -46,21 +44,11 @@ function construirParams(query: ProductosQuery): URLSearchParams {
   return params;
 }
 
-/** GET /api/productos/?page=&categoria=&search= */
+import { fetchProductos } from "@/lib/services/producto-service";
+
+/** GET /api/productos/?page=&categoria=&search= con soporte híbrido de mocks */
 async function obtenerProductos(query: QueryCatalogo): Promise<ProductosResponse> {
-  const params = construirParams(query);
-  params.set("page", String(query.page));
-
-  const respuesta = await fetch(`${API_BASE_URL}/api/productos/?${params.toString()}`, {
-    cache: "no-store",
-    headers: { Accept: "application/json" },
-  });
-
-  if (!respuesta.ok) {
-    throw new Error(`No se pudo obtener el catálogo (HTTP ${respuesta.status}).`);
-  }
-
-  return (await respuesta.json()) as ProductosResponse;
+  return fetchProductos(undefined, query);
 }
 
 function hrefPagina(query: QueryCatalogo, pagina: number): string {
