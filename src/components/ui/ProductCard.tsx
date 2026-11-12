@@ -23,19 +23,19 @@ const ESTILOS_BADGE: Record<
   { texto: string; contenedor: string; punto: string }
 > = {
   EN_STOCK: {
-    texto: "En stock",
-    contenedor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    punto: "bg-emerald-500",
+    texto: "EN STOCK",
+    contenedor: "bg-emerald-300 text-slate-950 border-slate-900",
+    punto: "bg-slate-950",
   },
   ULTIMAS_UNIDADES: {
-    texto: "Últimas unidades",
-    contenedor: "bg-amber-100 text-amber-800 border-amber-300",
-    punto: "bg-amber-500",
+    texto: "ÚLTIMAS UNIDADES",
+    contenedor: "bg-primary text-slate-950 border-slate-900",
+    punto: "bg-slate-950",
   },
   SIN_STOCK: {
-    texto: "Sin stock",
-    contenedor: "bg-red-100 text-red-800 border-red-200",
-    punto: "bg-red-500",
+    texto: "SIN STOCK",
+    contenedor: "bg-red-600 text-white border-slate-900",
+    punto: "bg-white",
   },
 };
 
@@ -44,15 +44,15 @@ interface StockBadgeProps {
   className?: string;
 }
 
-/** Etiqueta visual del estado de stock (verde / amarillo / rojo) */
+/** Etiqueta visual del estado de stock en bloque industrial (sin bordes redondeados) */
 export function StockBadge({ stock, className = "" }: StockBadgeProps) {
   const estilo = ESTILOS_BADGE[obtenerEstadoStock(stock)];
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wide whitespace-nowrap ${estilo.contenedor} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none border-2 text-[10px] font-mono font-black uppercase tracking-wider whitespace-nowrap shadow-[2px_2px_0px_0px_#0f172a] ${estilo.contenedor} ${className}`}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${estilo.punto}`} aria-hidden="true" />
+      <span className={`w-1.5 h-1.5 rounded-none ${estilo.punto}`} aria-hidden="true" />
       {estilo.texto}
     </span>
   );
@@ -74,44 +74,63 @@ export function ProductCard({ producto }: ProductCardProps) {
   return (
     <Link
       href={`/catalogo/${id}`}
-      className="group flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-xl hover:border-brand-500/50 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+      className="group flex flex-col h-full bg-white rounded-none border-2 border-slate-900 shadow-hard hover:shadow-hard-lg hover:-translate-y-1 transition-all duration-150 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
     >
-      {/* Franja de seguridad industrial */}
+      {/* Franja de advertencia industrial (Hazard stripes) */}
       <div
-        className="h-1.5 bg-[repeating-linear-gradient(-45deg,#facc15_0_8px,#1e293b_8px_16px)]"
+        className="h-2 bg-[repeating-linear-gradient(-45deg,#f59e0b_0_10px,#0f172a_10px_20px)] border-b-2 border-slate-900"
         aria-hidden="true"
       />
 
-      {/* Cabecera visual del producto */}
-      <div className="relative h-32 bg-slate-900 flex items-center justify-center overflow-hidden">
+      {/* Cabecera visual del producto: chapa de acero maquinado oscuro */}
+      <div className="relative h-36 bg-slate-900 flex items-center justify-center overflow-hidden border-b-2 border-slate-900">
         <div
-          className="absolute inset-0 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:16px_16px] opacity-10"
+          className="absolute inset-0 bg-[radial-gradient(#f59e0b_1.5px,transparent_1.5px)] [background-size:12px_12px] opacity-15"
           aria-hidden="true"
         />
         <Package
-          className="relative w-12 h-12 text-slate-600 transition-colors duration-200 group-hover:text-brand-500"
-          strokeWidth={1.5}
+          className="relative w-14 h-14 text-slate-500 transition-transform duration-200 group-hover:scale-110 group-hover:text-primary"
+          strokeWidth={1.75}
           aria-hidden="true"
         />
-        <span className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-amber-400 text-slate-900 text-[10px] font-black uppercase tracking-wider">
+        {/* Placa de Categoría remachada */}
+        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-none bg-primary text-secondary border border-slate-900 text-[10px] font-heading font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_#000]">
           {nombreCategoria}
+        </span>
+        {/* Código SKU o ID técnico */}
+        <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded-none bg-slate-950/80 text-slate-400 font-mono text-[9px] uppercase tracking-widest border border-slate-800">
+          ID #{id}
         </span>
       </div>
 
-      {/* Información del producto */}
-      <div className="flex flex-col flex-1 p-5">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+      {/* Información técnica del producto */}
+      <div className="flex flex-col flex-1 p-5 bg-white">
+        <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-500">
           {nombreMarca}
         </p>
-        <h2 className="mt-1 text-base font-bold leading-snug text-slate-900 line-clamp-2 transition-colors group-hover:text-brand-600">
+        <h2 className="mt-1 text-base font-heading font-bold uppercase leading-snug text-slate-900 line-clamp-2 group-hover:text-amber-600 transition-colors">
           {nombre}
         </h2>
 
-        <div className="mt-auto pt-4 flex flex-wrap items-end justify-between gap-2">
-          <p className="text-xl font-black tracking-tight text-slate-900">
-            {formatearPrecio(precio)}
-          </p>
+        {/* Zona de precio y stock */}
+        <div className="mt-auto pt-4 flex flex-wrap items-baseline justify-between gap-2 border-t-2 border-dashed border-slate-200">
+          <div>
+            <span className="block text-[9px] font-mono uppercase text-slate-400 font-semibold tracking-wider">
+              PRECIO
+            </span>
+            <p className="text-xl font-heading font-black tracking-tight text-slate-950">
+              {formatearPrecio(precio)}
+            </p>
+          </div>
           <StockBadge stock={stock} />
+        </div>
+
+        {/* Botón de acción mecánico tipo placa de acero */}
+        <div className="mt-4 pt-2">
+          <div className="w-full py-2 px-3 bg-slate-900 group-hover:bg-primary text-white group-hover:text-secondary border-2 border-slate-900 text-xs font-heading font-bold uppercase tracking-wider flex items-center justify-between transition-colors shadow-sm">
+            <span>VER FICHA TÉCNICA</span>
+            <span className="text-base group-hover:translate-x-1 transition-transform">→</span>
+          </div>
         </div>
       </div>
     </Link>
