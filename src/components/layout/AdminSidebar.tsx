@@ -160,7 +160,7 @@ export default function AdminSidebar() {
             <div className="min-w-0">
               <p className="text-sm font-bold text-white truncate">{user.username}</p>
               <span
-                className={`inline-block mt-1 text-[11px] font-bold px-2 py-0.5 rounded-full border ${badge.className}`}
+                className={`inline-block mt-1 text-[11px] text-white font-bold px-2 py-0.5 rounded-full border ${badge.className}`}
               >
                 {badge.text}
               </span>
