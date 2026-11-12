@@ -36,45 +36,9 @@ export async function loginRequest(
   username: string,
   password: string
 ): Promise<AuthTokens> {
-  const endpoint = `${API_BASE_URL}/api/auth/token/`;
-  // Autenticación simulada cuando trabajamos con mocks
-  const USE_PRODUCT_MOCKS =
-    process.env.NEXT_PUBLIC_USE_PRODUCT_MOCKS === "true";
-    if (USE_PRODUCT_MOCKS) {
-      const demoUsers: Record<string, { password: string; role: UserRole }> = {
-      admin: {
-        password: "admin123",
-        role: "ADMIN",
-      },
-      vendedor: {
-        password: "vendedor123",
-        role: "VENDEDOR",
-      },
-      deposito: {
-        password: "deposito123",
-        role: "DEPOSITO",
-      },
-    };
-
-  const normalizedUsername = username.toLowerCase().trim();
-  const demoUser = demoUsers[normalizedUsername];
-  if (!demoUser || demoUser.password !== password) {
-    throw new Error("Usuario o contraseña incorrectos.");
-  }
-
-  const token = createSimulatedToken(
-    normalizedUsername,
-    demoUser.role
-  );
-
-  return {
-    access: token,
-    refresh: token,
-  };
-}
-
   try {
-    const response = await fetch(endpoint, {
+    // Intenta primero el endpoint estándar de SimpleJWT: POST /api/token/
+    let response = await fetch(`${API_BASE_URL}/api/token/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,11 +46,23 @@ export async function loginRequest(
       body: JSON.stringify({ username, password }),
     });
 
+    // Si devuelve 404, prueba la ruta alternativa común /api/auth/token/
+    if (response.status === 404) {
+      response = await fetch(`${API_BASE_URL}/api/auth/token/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+    }
+
     if (response.ok) {
       const data = await response.json();
       return {
         access: data.access,
         refresh: data.refresh,
+        usuario: data.usuario,
       };
     }
 
@@ -107,7 +83,7 @@ export async function loginRequest(
 
     if (isNetworkError) {
       console.warn(
-        `[AuthService] No se pudo conectar a ${endpoint}. Usando fallback de autenticación simulada.`
+        `[AuthService] No se pudo conectar a ${API_BASE_URL}/api/token/. Usando fallback de autenticación simulada.`
       );
 
       // Simulación de roles para Tuerca y Perno RC
@@ -130,6 +106,11 @@ export async function loginRequest(
       return {
         access: createSimulatedToken(username, role),
         refresh: createSimulatedToken(username, role),
+        usuario: {
+          id: 1,
+          username,
+          rol: role.toLowerCase(),
+        },
       };
     }
 

@@ -4,14 +4,14 @@ import React from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { ProductForm } from "@/components/forms/ProductForm";
-import { createProducto, USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
+import { createProducto } from "@/lib/services/producto-service";
 import { ProductoFormValues } from "@/lib/validations/producto";
 
 export default function NuevoProductoPage() {
   const { token } = useAuth();
 
   const handleSubmit = async (values: ProductoFormValues): Promise<Response> => {
-    if (!token && !USE_PRODUCT_MOCKS) {
+    if (!token) {
       return new Response(
         JSON.stringify({
           non_field_errors: [
@@ -26,7 +26,7 @@ export default function NuevoProductoPage() {
         }
       );
     }
-    return createProducto(values, token ?? "");
+    return createProducto(values, token);
   };
 
   return (
