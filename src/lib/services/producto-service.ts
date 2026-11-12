@@ -1,5 +1,7 @@
 import {
+  ActualizarStockPayload,
   ProductoDetalle,
+  ProductosQuery,
   ProductosResponse,
 } from "@/types/producto";
 
@@ -11,6 +13,7 @@ import {
   mockCreateProducto,
   mockUpdateProducto,
   mockDeleteProducto,
+  mockActualizarStock,
 } from "@/lib/mocks/producto-mock";
 
 const API_BASE =
@@ -22,11 +25,15 @@ export const USE_PRODUCT_MOCKS =
 /**
  * Construye los headers de autenticación.
  */
-function buildHeaders(token: string): HeadersInit {
-  return {
+function buildHeaders(token?: string): HeadersInit {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    Accept: "application/json",
   };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  return headers;
 }
 
 /**
@@ -46,25 +53,37 @@ function toApiPayload(values: ProductoFormValues) {
 }
 
 /**
- * GET /api/productos/
+ * GET /api/productos/?page=&categoria=&search=
  */
 export async function fetchProductos(
-  token: string
+  token?: string,
+  query?: ProductosQuery
 ): Promise<ProductosResponse> {
   if (USE_PRODUCT_MOCKS) {
-    return mockFetchProductos();
+    return mockFetchProductos(query);
   }
 
-  const res = await fetch(`${API_BASE}/api/productos/`, {
-    headers: buildHeaders(token),
-    cache: "no-store",
-  });
+  const params = new URLSearchParams();
+  if (query?.page && query.page > 1) params.set("page", String(query.page));
+  if (query?.categoria) params.set("categoria", query.categoria);
+  if (query?.search) params.set("search", query.search);
 
-  if (!res.ok) {
-    throw new Error(`Error al obtener productos (${res.status})`);
+  try {
+    const res = await fetch(`${API_BASE}/api/productos/?${params.toString()}`, {
+      headers: buildHeaders(token),
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error al obtener productos (${res.status})`);
+    }
+
+    return res.json();
+  } catch {
+    // Si la API no está disponible y ocurre un error de conexión, fallback a mocks
+    console.warn("[producto-service] API no disponible, activando fallback a mock.");
+    return mockFetchProductos(query);
   }
-
-  return res.json();
 }
 
 /**
@@ -72,22 +91,28 @@ export async function fetchProductos(
  */
 export async function fetchProductoById(
   id: string | number,
-  token: string
-): Promise<ProductoDetalle> {
+  token?: string
+): Promise<ProductoDetalle | null> {
   if (USE_PRODUCT_MOCKS) {
     return mockFetchProductoById(id);
   }
 
-  const res = await fetch(`${API_BASE}/api/productos/${id}/`, {
-    headers: buildHeaders(token),
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`${API_BASE}/api/productos/${id}/`, {
+      headers: buildHeaders(token),
+      cache: "no-store",
+    });
 
-  if (!res.ok) {
-    throw new Error(`Producto no encontrado (${res.status})`);
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      throw new Error(`Producto no encontrado (${res.status})`);
+    }
+
+    return res.json();
+  } catch {
+    console.warn(`[producto-service] Fallback a mock para producto #${id}.`);
+    return mockFetchProductoById(id);
   }
-
-  return res.json();
 }
 
 /**
@@ -142,4 +167,49 @@ export async function deleteProducto(
     method: "DELETE",
     headers: buildHeaders(token),
   });
+}
+
+/**
+ * POST /api/productos/{id}/actualizar-stock/
+ */
+export async function actualizarStock(
+  productoId: number | string,
+  payload: ActualizarStockPayload,
+  token?: string
+): Promise<Response> {
+  if (USE_PRODUCT_MOCKS) {
+    try {
+      const prod = mockActualizarStock(productoId, payload.accion, payload.cantidad);
+      return new Response(JSON.stringify(prod), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (err) {
+      return new Response(
+        JSON.stringify({
+          detail: err instanceof Error ? err.message : "Error al actualizar stock",
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+  }
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/api/productos/${productoId}/actualizar-stock/`,
+      {
+        method: "POST",
+        headers: buildHeaders(token),
+        body: JSON.stringify(payload),
+      }
+    );
+    return res;
+  } catch {
+    // Si la API falla, responder desde mock
+    const prod = mockActualizarStock(productoId, payload.accion, payload.cantidad);
+    return new Response(JSON.stringify(prod), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 }

@@ -8,8 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
 import InputField from "@/components/ui/InputField";
 import type { AccionStock, ActualizarStockPayload } from "@/types/producto";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import { actualizarStock } from "@/lib/services/producto-service";
 
 /** Este componente solo permite sumar o restar unidades */
 type AccionEditable = Extract<AccionStock, "sumar" | "restar">;
@@ -106,18 +105,7 @@ export function StockManager({ productoId, stockActual }: StockManagerProps) {
     setEnviando(true);
 
     try {
-      const respuesta = await fetch(
-        `${API_BASE_URL}/api/productos/${productoId}/actualizar-stock/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const respuesta = await actualizarStock(productoId, payload, token ?? "");
 
       if (!respuesta.ok) {
         setErrorApi(await obtenerMensajeError(respuesta));

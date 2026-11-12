@@ -7,11 +7,11 @@ import { StockBadge, formatearPrecio } from "@/components/ui/ProductCard";
 import type { ProductoDetalle } from "@/types/producto";
 import StockManager from "./StockManager";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-
 interface ProductoPageProps {
   params: Promise<{ id: string }>;
 }
+
+import { fetchProductoById } from "@/lib/services/producto-service";
 
 /**
  * GET /api/productos/{id}/
@@ -20,18 +20,7 @@ interface ProductoPageProps {
  */
 const obtenerProducto = cache(async (id: string): Promise<ProductoDetalle | null> => {
   if (!/^\d+$/.test(id)) return null;
-
-  const respuesta = await fetch(`${API_BASE_URL}/api/productos/${id}/`, {
-    cache: "no-store",
-    headers: { Accept: "application/json" },
-  });
-
-  if (respuesta.status === 404) return null;
-  if (!respuesta.ok) {
-    throw new Error(`No se pudo obtener el producto #${id} (HTTP ${respuesta.status}).`);
-  }
-
-  return (await respuesta.json()) as ProductoDetalle;
+  return fetchProductoById(id);
 });
 
 export async function generateMetadata({ params }: ProductoPageProps): Promise<Metadata> {

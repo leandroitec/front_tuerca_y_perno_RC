@@ -30,16 +30,22 @@ export default function HomePage() {
 
             <div className="flex flex-wrap items-center gap-4">
               <Link
-                href="/login"
+                href="/catalogo"
                 className="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-base shadow-lg shadow-brand-500/25 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0"
               >
-                Acceder al Sistema Interno
+                Explorar Catálogo
+              </Link>
+              <Link
+                href="/login"
+                className="px-6 py-3.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-white font-bold text-base border border-slate-700 transition-all duration-200"
+              >
+                Acceder al Sistema
               </Link>
               <a
                 href="#servicios"
-                className="px-6 py-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-base border border-slate-700 transition-all duration-200"
+                className="px-5 py-3.5 rounded-xl text-slate-300 hover:text-white font-semibold text-base transition-colors"
               >
-                Ver Rubros y Servicios
+                Rubros y Servicios ↓
               </a>
             </div>
           </div>

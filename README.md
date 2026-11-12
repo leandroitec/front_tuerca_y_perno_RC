@@ -189,7 +189,7 @@ Las rutas `/admin/*` están protegidas por `middleware.ts` (redirige a `/login` 
 
 | Método | Endpoint | Uso en el frontend |
 | :--- | :--- | :--- |
-| `POST` | `/api/auth/token/` | Login (JWT) |
+| `POST` | `/api/token/` (o `/api/auth/token/`) | Login (JWT) |
 | `GET` | `/api/productos/` | Catálogo y gestión de productos |
 | `POST` / `PUT` / `DELETE` | `/api/productos/{id}/` | Alta, edición y baja de productos |
 | `GET` | `/api/ventas/` | Historial de ventas |

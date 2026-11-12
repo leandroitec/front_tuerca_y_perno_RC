@@ -90,29 +90,44 @@ export default function AdminDashboardPage() {
           Operaciones Disponibles
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
+          <Link
+            href="/admin/ventas"
+            className="group block border border-slate-200 rounded-xl p-5 hover:border-brand-500 hover:shadow-md transition-all duration-200 bg-slate-50/50 hover:bg-white"
+          >
             <div className="text-2xl mb-2">📋</div>
-            <h3 className="font-bold text-slate-900 mb-1">Presupuestos y Ventas</h3>
+            <h3 className="font-bold text-slate-900 group-hover:text-brand-600 transition-colors mb-1">
+              Gestión de Ventas
+            </h3>
             <p className="text-sm text-slate-600">
-              Generar presupuestos para obras civiles, talleres metalúrgicos y clientes de mostrador.
+              Consultá ventas del día, finalizá órdenes pendientes e inspeccioná el historial.
             </p>
-          </div>
+          </Link>
 
-          <div className="border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
+          <Link
+            href="/admin/productos"
+            className="group block border border-slate-200 rounded-xl p-5 hover:border-brand-500 hover:shadow-md transition-all duration-200 bg-slate-50/50 hover:bg-white"
+          >
             <div className="text-2xl mb-2">📦</div>
-            <h3 className="font-bold text-slate-900 mb-1">Control de Depósito</h3>
+            <h3 className="font-bold text-slate-900 group-hover:text-brand-600 transition-colors mb-1">
+              Control de Inventario
+            </h3>
             <p className="text-sm text-slate-600">
-              Recepción de mercadería, control de stock de áridos, cemento y bulonería clasificada.
+              Administrá el stock de áridos, bulonería y herramientas (altas, bajas y edición).
             </p>
-          </div>
+          </Link>
 
-          <div className="border border-slate-200 rounded-xl p-5 hover:border-brand-500 transition-colors">
-            <div className="text-2xl mb-2">🚛</div>
-            <h3 className="font-bold text-slate-900 mb-1">Despacho de Camiones</h3>
+          <Link
+            href="/catalogo"
+            className="group block border border-slate-200 rounded-xl p-5 hover:border-brand-500 hover:shadow-md transition-all duration-200 bg-slate-50/50 hover:bg-white"
+          >
+            <div className="text-2xl mb-2">🛒</div>
+            <h3 className="font-bold text-slate-900 group-hover:text-brand-600 transition-colors mb-1">
+              Catálogo de Clientes
+            </h3>
             <p className="text-sm text-slate-600">
-              Hoja de ruta para camiones con hidrogrúa y logística de entrega en obras.
+              Explorá la vista pública de artículos, fichas técnicas y disponibilidad para obras.
             </p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
