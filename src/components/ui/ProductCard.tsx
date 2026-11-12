@@ -2,20 +2,14 @@ import React from "react";
 import Link from "next/link";
 import { Package } from "lucide-react";
 import type { EstadoStock, Producto } from "@/types/producto";
+import { formatCurrency } from "@/lib/utils";
 
 /** A partir de esta cantidad (inclusive) se muestra "Últimas unidades" */
 export const UMBRAL_ULTIMAS_UNIDADES = 5;
 
-const formateadorPrecio = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  minimumFractionDigits: 2,
-});
-
 /** Convierte el precio decimal de la API ("125000.00") a moneda local ($ 125.000,00) */
 export function formatearPrecio(precio: string | number): string {
-  const valor = typeof precio === "number" ? precio : Number.parseFloat(precio);
-  return Number.isFinite(valor) ? formateadorPrecio.format(valor) : "Precio a consultar";
+  return formatCurrency(precio, "Precio a consultar");
 }
 
 export function obtenerEstadoStock(stock: number): EstadoStock {

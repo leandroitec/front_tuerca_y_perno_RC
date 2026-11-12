@@ -10,6 +10,7 @@ import { fetchProductos, deleteProducto, USE_PRODUCT_MOCKS } from "@/lib/service
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Button } from "@/components/ui/Button";
+import { formatCurrency } from "@/lib/utils";
 
 export default function ProductosAdminPage() {
   const { token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -99,13 +100,8 @@ export default function ProductosAdminPage() {
     router.push(`/admin/productos/editar/${producto.id}`);
   };
 
-  // Formato de precio ARS
-  const formatPrecio = (precio: string | number) =>
-    new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      maximumFractionDigits: 2,
-    }).format(typeof precio === "string" ? parseFloat(precio) : precio);
+  // Formato de precio ARS (compartido en src/lib/utils.ts)
+  const formatPrecio = (precio: string | number) => formatCurrency(precio);
 
   // ── Columnas de la tabla ─────────────────────────────────────────────────
   const columns: Column<Producto>[] = [
