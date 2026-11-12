@@ -158,10 +158,6 @@ Listado tabular con ordenamiento, filtrado, indicador visual de stock por colore
 Panel de métricas del día (total facturado, cobrado y pendiente) junto con el historial completo de ventas y acción de finalización.
 ![Gestión de Ventas](docs/screenshots/ventas.png)
 
-### 6. Suite de Pruebas Unitarias (Vitest)
-Validación de esquemas Zod, formateador de moneda argentina ($ ARS) y estados de badges.
-![Tests en Verde](docs/screenshots/tests.png)
-
 ---
 
 ## 📜 Scripts Disponibles
