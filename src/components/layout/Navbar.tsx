@@ -85,7 +85,7 @@ export const Navbar = () => {
                     const badge = getRoleBadge(user.role);
                     return (
                       <span
-                        className={`text-[9px] text-white font-mono font-black px-2 py-0.5 rounded-none border-2 border-slate-900 uppercase tracking-widest mt-0.5 shadow-[1px_1px_0px_0px_#000] ${badge.className}`}
+                        className={`text-[9px] text-grey bg-amber-500 font-mono font-black px-2 py-0.5 rounded-none border-2 border-slate-900 uppercase tracking-widest mt-0.5 shadow-[1px_1px_0px_0px_#000] ${badge.className}`}
                       >
                         {badge.text}
                       </span>

@@ -44,11 +44,11 @@ function construirParams(query: ProductosQuery): URLSearchParams {
   return params;
 }
 
-import { fetchProductos } from "@/lib/services/producto-service";
+import { getProductos } from "@/lib/services/producto-service";
 
-/** GET /api/productos/?page=&categoria=&search= con soporte híbrido de mocks */
+/** GET /api/productos/?page=&categoria=&search= desde la API real de Django */
 async function obtenerProductos(query: QueryCatalogo): Promise<ProductosResponse> {
-  return fetchProductos(undefined, query);
+  return getProductos(query);
 }
 
 function hrefPagina(query: QueryCatalogo, pagina: number): string {

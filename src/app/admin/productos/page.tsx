@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 import { Producto } from "@/types/producto";
-import { fetchProductos, deleteProducto, USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
+import { getProductos, deleteProducto } from "@/lib/services/producto-service";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Button } from "@/components/ui/Button";
@@ -26,13 +26,13 @@ export default function ProductosAdminPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  /** Carga la lista de productos desde la API */
+  /** Carga la lista de productos desde la API real de Django */
   const loadProductos = useCallback(async () => {
-    if (!token && !USE_PRODUCT_MOCKS) return;
+    if (!token) return;
     setIsLoading(true);
     setFetchError(null);
     try {
-      const data = await fetchProductos(token ?? "");
+      const data = await getProductos(undefined, token);
       // Soporta tanto respuesta paginada (DRF) como array directo
       setProductos(Array.isArray(data) ? data : data.results);
     } catch (err) {
@@ -48,17 +48,13 @@ export default function ProductosAdminPage() {
 
   // Redirigir si no autenticado
   useEffect(() => {
-    if (
-      !USE_PRODUCT_MOCKS &&
-      !isAuthLoading &&
-      !isAuthenticated
-    ) {
+    if (!isAuthLoading && !isAuthenticated) {
       router.replace("/login");
     }
   }, [isAuthLoading, isAuthenticated, router]);
 
   useEffect(() => {
-    if (USE_PRODUCT_MOCKS || isAuthenticated) {
+    if (isAuthenticated) {
       loadProductos();
     }
   }, [isAuthenticated, loadProductos]);
@@ -72,7 +68,7 @@ export default function ProductosAdminPage() {
 
   /** Handler: confirmar la eliminación */
   const handleConfirmDelete = async () => {
-    if (!productoToDelete || (!token && !USE_PRODUCT_MOCKS)) return;
+    if (!productoToDelete || !token) return;
     setIsDeleting(true);
     setDeleteError(null);
     try {

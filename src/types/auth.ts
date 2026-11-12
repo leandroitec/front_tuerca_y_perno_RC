@@ -1,5 +1,13 @@
 export type UserRole = "ADMIN" | "VENDEDOR" | "DEPOSITO";
 
+export interface UsuarioApi {
+  id?: number | string;
+  username: string;
+  rol?: string;
+  role?: string;
+  email?: string;
+}
+
 export interface User {
   id?: number | string;
   username: string;
@@ -10,6 +18,7 @@ export interface User {
 export interface AuthTokens {
   access: string;
   refresh: string;
+  usuario?: UsuarioApi;
 }
 
 export interface JWTPayload {
@@ -25,6 +34,7 @@ export interface JWTPayload {
 
 export interface AuthContextType {
   user: User | null;
+  role?: UserRole | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;

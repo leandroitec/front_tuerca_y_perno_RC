@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 import { ProductoDetalle } from "@/types/producto";
-import { fetchProductoById, updateProducto, USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
+import { getProductoById, updateProducto } from "@/lib/services/producto-service";
 import { ProductForm } from "@/components/forms/ProductForm";
 import { ProductoFormValues } from "@/lib/validations/producto";
 
@@ -23,24 +23,20 @@ export default function EditarProductoPage() {
 
   // Redirigir si no autenticado
   useEffect(() => {
-    if (
-      !USE_PRODUCT_MOCKS &&
-      !isAuthLoading &&
-      !isAuthenticated
-    ) {
+    if (!isAuthLoading && !isAuthenticated) {
       router.replace("/login");
     }
   }, [isAuthLoading, isAuthenticated, router]);
 
-  // Cargar datos actuales del producto
+  // Cargar datos actuales del producto desde la API real
   useEffect(() => {
-    if ((!token && !USE_PRODUCT_MOCKS) || !id) return;
+    if (!token || !id) return;
 
     const load = async () => {
       setIsLoading(true);
       setFetchError(null);
       try {
-        const data = await fetchProductoById(id, token ?? "");
+        const data = await getProductoById(id, token);
         setProducto(data);
       } catch (err) {
         setFetchError(
@@ -58,7 +54,7 @@ export default function EditarProductoPage() {
 
   /** Adaptador del service para el ProductForm */
   const handleSubmit = async (values: ProductoFormValues): Promise<Response> => {
-    if (!token && !USE_PRODUCT_MOCKS) {
+    if (!token) {
       return new Response(
         JSON.stringify({
           non_field_errors: [
@@ -73,7 +69,7 @@ export default function EditarProductoPage() {
         }
       );
     }
-    return updateProducto(id, values, token ?? "");
+    return updateProducto(id, values, token);
   };
 
   /**

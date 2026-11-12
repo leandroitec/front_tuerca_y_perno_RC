@@ -1,112 +1,104 @@
 # Tuerca y Perno RC
 
-**Sistema web de gestión para ferretería industrial y corralón de materiales** — Frontend desarrollado con **Next.js (App Router)**, **TypeScript** y **Tailwind CSS**, conectado a una API REST en **Django REST Framework**.
+**Sistema Web de Gestión para Ferretería Industrial y Corralón de Materiales**  
+Frontend de alto rendimiento desarrollado con **Next.js 15 (App Router)**, **TypeScript** y **Tailwind CSS**, con estética industrial pesada e integrado a una API REST en **Django REST Framework** con autenticación JWT (SimpleJWT).
 
 ---
 
-## 📋 Descripción y temática
+## 👥 Integrantes del Proyecto
 
-**Tuerca y Perno RC** es una ferretería industrial y corralón de materiales de construcción que atiende a particulares, talleres metalúrgicos y empresas constructoras. El sistema digitaliza su operación diaria:
+### **Grupo: Alt + f4**
 
-- **Catálogo público** de productos (herramientas, bulonería, sanitarios, electricidad, materiales de obra) con búsqueda, filtro por categoría y detalle con stock.
-- **Panel de administración** protegido por login, con acceso según el rol del usuario (**Administrador**, **Vendedor** y **Depósito**).
-- **Gestión de productos**: alta, edición, baja y control de stock.
-- **Gestión de ventas**: resumen de las ventas del día, historial completo y finalización de ventas pendientes.
-
-El frontend puede funcionar **conectado al backend Django** o en **modo simulado (mocks)**, con datos en memoria, para probar toda la interfaz sin levantar el servidor.
-
----
-
-## 👥 Integrantes
-
-| Integrante | Nombre y apellido | Módulo a cargo |
+| Integrante | Nombre y Apellido | Responsabilidades principales |
 | :---: | :--- | :--- |
-| 1 | Leandro Odetto | Autenticación (AuthContext, login con Zod, middleware), UI base y Navbar |
-| 2 | Pablo Abataneo | Catálogo público: listado, filtros, búsqueda y vista de producto |
-| 3 | Ulises Cabrera | Gestión de productos (CRUD), DataTable, ConfirmModal e integración con la API |
-| 4 | Franco Nicolas Bressan Nadal | Layout administrativo, módulo de ventas, BadgeStatus, testing unitario y documentación |
+| **1** | **Abataneo Pablo Noe** | Catálogo público: listado, filtros por categoría, búsqueda y detalle técnico de producto con stock |
+| **2** | **Bressan Nadal Franco Nicolas** | Módulo de ventas, resumen métrico diario, BadgeStatus, testing unitario y documentación |
+| **3** | **Cabrera Ulises** | Gestión de productos (CRUD completo), DataTable, modales de confirmación e integración con API |
+| **4** | **Odetto Leandro** | Arquitectura general, autenticación (AuthContext + JWT), UI/UX industrial pesada y servicios REST |
 
 ---
 
-## 🔗 Enlaces del proyecto
+## 📋 Descripción y Temática
+
+**Tuerca y Perno RC** es una solución integral diseñada para una ferretería industrial y corralón de materiales que abastece a particulares, obras en construcción y talleres mecánicos/metalúrgicos.
+
+El sistema digitaliza y agiliza las operaciones clave del negocio:
+- **Catálogo Público de Productos**: Consulta en tiempo real de bulonería, herramientas pesadas, sanitarios y materiales de obra, con filtros por categoría, búsqueda por nombre y control de existencias.
+- **Autenticación con Control de Acceso basado en Roles (RBAC)**:
+  - `ADMIN`: Acceso irrestricto a todos los módulos operativos y gerenciales.
+  - `VENDEDOR`: Acceso al catálogo y registro/cierre de ventas.
+  - `DEPOSITO`: Gestión de inventario, stock y actualización de existencias.
+- **Gestión de Inventario (CRUD)**: Alta, modificación, baja y ajuste de existencias con validaciones estrictas vía Zod y React Hook Form.
+- **Gestión y Cobro de Ventas**: Panel métrico del día (facturación diaria, ventas pendientes, cobradas y canceladas) e historial general de transacciones.
+
+---
+
+## 🔗 Enlaces del Proyecto
 
 | Recurso | Enlace |
 | :--- | :--- |
-| 🚀 **Deploy en Vercel** | `[PEGAR ENLACE DE VERCEL]` |
-| 📌 **Tablero Kanban** | `[PEGAR ENLACE DEL KANBAN]` |
-| 🐍 **Repositorio backend (Django)** | `[PEGAR ENLACE DEL REPOSITORIO DE DJANGO]` |
-| 💻 **Repositorio frontend** | https://github.com/leandroitec/front_tuerca_y_perno_RC |
+| 🐍 **Repositorio Backend (Django REST Framework)** | [https://github.com/leandroitec/tuerca_y_perno_RC](https://github.com/leandroitec/tuerca_y_perno_RC) |
+| 💻 **Repositorio Frontend (Next.js)** | [https://github.com/leandroitec/front_tuerca_y_perno_RC](https://github.com/leandroitec/front_tuerca_y_perno_RC) |
+| 🚀 **Aplicación Desplegada (Producción)** | [https://front-tuerca-y-perno-rc.vercel.app](https://front-tuerca-y-perno-rc.vercel.app) *(o enlace asignado en Vercel)* |
+| 📌 **Tablero de Seguimiento (Kanban)** | [Tablero Kanban del Proyecto](https://github.com/users/leandroitec/projects) *(o Jira / Trello del equipo)* |
 
 ---
 
-## 🛠️ Stack tecnológico
+## 🛠️ Stack Tecnológico
 
-| Área | Tecnología |
-| :--- | :--- |
-| Framework | Next.js 15 (App Router, estructura `src/app`) |
-| Lenguaje | TypeScript |
-| Estilos | Tailwind CSS 3 |
-| Formularios y validación | React Hook Form + Zod (`@hookform/resolvers`) |
-| Estado global | Context API (`AuthContext`) |
-| Sesión | JWT de Django SimpleJWT guardado en cookies (`js-cookie`) |
-| Protección de rutas | Next.js Middleware (`/admin/*`) |
-| Íconos | lucide-react |
-| Testing | Vitest + Testing Library + jsdom |
+- **Framework**: Next.js 15 (App Router, estructura `src/app`)
+- **Lenguaje**: TypeScript
+- **Estilos**: Tailwind CSS (Diseño Industrial Pesado Anti-Look IA, paleta Caterpillar/DeWalt)
+- **Validación de Formularios**: React Hook Form + Zod
+- **Estado Global**: React Context API (`AuthContext` con persistencia en Cookies + LocalStorage)
+- **Seguridad**: JWT (Django SimpleJWT) mediante header `Authorization: Bearer <token>` y Middleware de protección de rutas
+- **Testing**: Vitest + React Testing Library + JSDOM
+- **Iconografía**: Lucide React
 
 ---
 
-## 🚀 Ejecución local
+## 🚀 Instalación y Ejecución Local
 
-### Requisitos previos
+### Requisitos Previos
 
-- **Node.js 18.18 o superior** (recomendado Node 20 o 22) y **npm**.
-- *(Opcional)* El backend Django corriendo en `http://127.0.0.1:8000` para usar datos reales.
+- **Node.js 18.18+** (recomendado v20 LTS o superior)
+- **npm** (o yarn / pnpm)
+- Backend en Django corriendo en local (`http://127.0.0.1:8000/`)
 
-### 1. Clonar el repositorio
+### 1. Clonar el Repositorio
 
 ```bash
 git clone https://github.com/leandroitec/front_tuerca_y_perno_RC.git
 cd front_tuerca_y_perno_RC
 ```
 
-### 2. Instalar dependencias
+### 2. Instalar Dependencias
 
 ```bash
 npm install
 ```
 
-### 3. Configurar las variables de entorno (`.env.local`)
+### 3. Configurar Variables de Entorno
 
-Copiar el archivo de ejemplo:
+Crear un archivo `.env.local` en la raíz del proyecto (basado en `.env.example`):
 
 ```bash
 cp .env.example .env.local
 ```
 
-Y ajustar los valores en `.env.local`:
+Configurar la URL de conexión a la API de Django:
 
 ```env
-# URL base del backend Django REST Framework
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
-
-# Productos y login: true = datos simulados | false = backend Django
-NEXT_PUBLIC_USE_PRODUCT_MOCKS=true
-
-# Ventas: true (o sin definir) = datos simulados | false = backend Django
-NEXT_PUBLIC_USE_VENTA_MOCKS=true
+# URL base del Backend Django REST Framework
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/
 ```
 
-| Variable | Descripción | Valor por defecto |
-| :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | URL base de la API de Django | `http://127.0.0.1:8000` |
-| `NEXT_PUBLIC_USE_PRODUCT_MOCKS` | Usa datos simulados para productos y login | `false` |
-| `NEXT_PUBLIC_USE_VENTA_MOCKS` | Usa datos simulados para ventas | `true` |
+> 💡 **Nota**: La aplicación elimina los mocks y se conecta directamente a los endpoints reales de Django:
+> - `/api/token/` (Autenticación SimpleJWT con retorno de `{ access, refresh, usuario: { id, username, rol } }`)
+> - `/api/productos/` (Catálogo e inventario)
+> - `/api/ventas/` (Ventas y transacciones del día)
 
-> ⚠️ Las variables `NEXT_PUBLIC_*` se leen al iniciar la aplicación: después de modificarlas hay que reiniciar `npm run dev`.
-
-> 🔄 Para conectar el frontend al backend Django en lugar de los datos simulados, ver la sección [Pasar de datos simulados (mocks) al backend Django](#-pasar-de-datos-simulados-mocks-al-backend-django).
-
-### 4. Iniciar el servidor de desarrollo
+### 4. Iniciar el Servidor de Desarrollo
 
 ```bash
 npm run dev
@@ -114,224 +106,75 @@ npm run dev
 
 Abrir [http://localhost:3000](http://localhost:3000) en el navegador.
 
-### 🔑 Usuarios de prueba
-
-Con los mocks activados (`NEXT_PUBLIC_USE_PRODUCT_MOCKS=true`) el login es simulado:
-
-| Usuario | Contraseña | Rol | Acceso en el panel |
-| :--- | :--- | :--- | :--- |
-| `admin` | `admin123` | Administrador | Todos los módulos |
-| `vendedor` | `vendedor123` | Vendedor | Panel, Catálogo y Ventas |
-| `deposito` | `deposito123` | Depósito | Panel, Catálogo y Productos |
-
-Con el backend Django, usar los usuarios creados con `python manage.py poblar_datos` (`admin` / `admin123`, `vendedor` / `vendedor123`).
-
 ---
 
-## 🧪 Tests
+## 🧪 Ejecución de Tests
 
-Los tests unitarios están en `src/__tests__/` y se ejecutan con **Vitest**.
+La suite de pruebas automatizadas está construida con **Vitest** y **Testing Library**, asegurando la robustez de esquemas de validación Zod, renderizado de componentes y formateo de datos:
 
 ```bash
-# Ejecutar todos los tests una vez
+# Ejecutar los tests en consola
 npm run test
+```
 
-# Modo vigilancia: vuelve a ejecutar los tests al guardar cambios
+Para ejecutar en modo vigilancia durante el desarrollo:
+
+```bash
 npm run test:watch
 ```
 
-| Archivo | Qué verifica |
-| :--- | :--- |
-| `loginSchema.test.ts` | Esquema Zod del login: credenciales válidas, campos vacíos, sólo espacios, tipos incorrectos e integración con React Hook Form |
-| `productoSchema.test.ts` | Esquema Zod de productos: precio negativo o cero y campos vacíos |
-| `BadgeStatus.test.tsx` | Renderizado del componente: texto, colores semánticos (verde, amarillo, rojo, gris) y propiedades |
-| `formatCurrency.test.ts` | Formato de moneda argentino: `formatCurrency(1250)` → `$ 1.250,00` |
-
-Resultado esperado:
-
+Resultado esperado (100% aprobado):
 ```text
+ ✓ src/__tests__/formatCurrency.test.ts (11 tests)
+ ✓ src/__tests__/loginSchema.test.ts (10 tests)
+ ✓ src/__tests__/productoSchema.test.ts (8 tests)
+ ✓ src/__tests__/BadgeStatus.test.tsx (13 tests)
+
  Test Files  4 passed (4)
       Tests  42 passed (42)
 ```
 
 ---
 
-## 📜 Scripts disponibles
+## 📸 Capturas de la Aplicación en Funcionamiento
+
+### 1. Página Principal (Landing Institucional)
+Diseño con temática industrial pesada, presentación de rubros de corralón y accesos directos al catálogo y sistema.
+![Página Principal](docs/screenshots/inicio.png)
+
+### 2. Formulario de Inicio de Sesión
+Autenticación JWT contra la API de Django con validación estricta de credenciales mediante Zod.
+![Inicio de Sesión](docs/screenshots/login.png)
+
+### 3. Panel de Control y Administración
+Dashboard general con métricas rápidas de inventario y facturación, con menú lateral segmentado por rol de operador.
+![Panel de Administración](docs/screenshots/panel.png)
+
+### 4. Gestión de Productos (Inventario CRUD)
+Listado tabular con ordenamiento, filtrado, indicador visual de stock por colores y acciones de edición y baja.
+![Gestión de Productos](docs/screenshots/productos.png)
+
+### 5. Gestión de Ventas y Panel Diario
+Panel de métricas del día (total facturado, cobrado y pendiente) junto con el historial completo de ventas y acción de finalización.
+![Gestión de Ventas](docs/screenshots/ventas.png)
+
+### 6. Suite de Pruebas Unitarias (Vitest)
+Validación de esquemas Zod, formateador de moneda argentina ($ ARS) y estados de badges.
+![Tests en Verde](docs/screenshots/tests.png)
+
+---
+
+## 📜 Scripts Disponibles
 
 | Comando | Descripción |
 | :--- | :--- |
-| `npm run dev` | Inicia el servidor de desarrollo en `http://localhost:3000` |
-| `npm run build` | Genera la versión de producción |
-| `npm run start` | Sirve la versión de producción (después de `build`) |
-| `npm run lint` | Analiza el código con ESLint |
-| `npm run test` | Ejecuta los tests unitarios con Vitest |
-| `npm run test:watch` | Ejecuta los tests en modo vigilancia |
+| `npm run dev` | Inicia el entorno local de desarrollo con Hot Reload (`localhost:3000`) |
+| `npm run build` | Compila y optimiza la aplicación para producción en Next.js App Router |
+| `npm run start` | Arranca el servidor productivo de Next.js optimizado |
+| `npm run lint` | Ejecuta el análisis estático de código con ESLint |
+| `npm run test` | Ejecuta las 42 pruebas unitarias con Vitest |
 
 ---
 
-## 🗺️ Rutas principales
-
-| Ruta | Acceso | Descripción |
-| :--- | :--- | :--- |
-| `/` | Público | Página institucional |
-| `/catalogo` | Público | Catálogo con búsqueda, filtro por categoría y paginación |
-| `/catalogo/[id]` | Público | Detalle de producto con stock |
-| `/login` | Público | Inicio de sesión |
-| `/admin` | Autenticado | Panel de control |
-| `/admin/productos` | ADMIN, DEPOSITO | Listado, alta, edición y baja de productos |
-| `/admin/ventas` | ADMIN, VENDEDOR | Resumen del día, historial y finalización de ventas |
-
-Las rutas `/admin/*` están protegidas por `middleware.ts` (redirige a `/login` si no hay sesión) y por el layout del panel, que bloquea las secciones según el rol.
-
----
-
-## 🔌 Integración con el backend
-
-| Método | Endpoint | Uso en el frontend |
-| :--- | :--- | :--- |
-| `POST` | `/api/token/` (o `/api/auth/token/`) | Login (JWT) |
-| `GET` | `/api/productos/` | Catálogo y gestión de productos |
-| `POST` / `PUT` / `DELETE` | `/api/productos/{id}/` | Alta, edición y baja de productos |
-| `GET` | `/api/ventas/` | Historial de ventas |
-| `GET` | `/api/ventas/ventas-del-dia/` | Resumen de ventas del día |
-| `POST` | `/api/ventas/{id}/finalizar-venta/` | Finalizar una venta pendiente |
-
-Todas las peticiones autenticadas envían el header `Authorization: Bearer <token>`.
-
----
-
-## 🔄 Pasar de datos simulados (mocks) al backend Django
-
-Por defecto el proyecto puede trabajar con **datos simulados**, para probar la interfaz sin el backend. Para usar los **datos reales** de Django hay que cambiar la configuración en 4 pasos.
-
-### ¿Qué controla cada variable?
-
-| Variable | `true` (mocks) | `false` (backend Django) |
-| :--- | :--- | :--- |
-| `NEXT_PUBLIC_USE_PRODUCT_MOCKS` | Login simulado y productos guardados en el navegador (`localStorage`) | Login con `POST /api/auth/token/` y productos desde `/api/productos/` |
-| `NEXT_PUBLIC_USE_VENTA_MOCKS` | Ventas de ejemplo en memoria (se reinician al recargar) | Ventas desde `/api/ventas/` |
-
-### Paso 1 — Levantar el backend
-
-En la carpeta del repositorio de Django:
-
-```bash
-source .venv/bin/activate
-python manage.py migrate
-python manage.py poblar_datos
-python manage.py runserver
-```
-
-Verificar que responda en [http://127.0.0.1:8000/api/docs/](http://127.0.0.1:8000/api/docs/) (documentación Swagger).
-
-> El comando `poblar_datos` crea usuarios, categorías, productos y clientes, pero **no crea ventas**: se pueden cargar desde el panel de Django en [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/).
-
-### Paso 2 — Cambiar el `.env.local`
-
-```env
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
-NEXT_PUBLIC_USE_PRODUCT_MOCKS=false
-NEXT_PUBLIC_USE_VENTA_MOCKS=false
-```
-
-> Las dos variables de mocks son independientes: por ejemplo, se pueden usar productos reales (`false`) y ventas simuladas (`true`).
-
-### Paso 3 — Reiniciar el servidor de desarrollo
-
-Las variables `NEXT_PUBLIC_*` sólo se leen al arrancar. Cortar el servidor con `Ctrl + C` y volver a iniciarlo:
-
-```bash
-npm run dev
-```
-
-### Paso 4 — Volver a iniciar sesión
-
-El token del login simulado no es válido para Django (y viceversa). Cerrar sesión, o borrar la cookie `auth_token` desde las herramientas del navegador (F12 → Application → Cookies), e ingresar con un usuario del backend: `admin` / `admin123` o `vendedor` / `vendedor123`.
-
-### ✅ Cómo saber que se están usando datos reales
-
-- En **Gestión de Ventas** desaparece la etiqueta gris **"Datos simulados"**.
-- En la pestaña **Network** de las herramientas del navegador (F12) aparecen peticiones a `http://127.0.0.1:8000/api/...`.
-- Los productos y ventas que se ven son los cargados en Django.
-
-### ⚠️ Limitaciones conocidas con el backend real
-
-- **Roles:** el token de Django no incluye el rol del usuario, por lo que el frontend toma a todos como **Vendedor** (no se accede a Gestión de Productos). Se resuelve agregando `rol` al token en el backend.
-- **Catálogo público:** el backend exige iniciar sesión para listar productos, y el catálogo los pide sin token, por lo que muestra un error.
-- **Paginación:** el backend devuelve las ventas de a 10; el historial muestra la primera página.
-
-### ↩️ Volver a los datos simulados
-
-Poner las dos variables en `true`, reiniciar `npm run dev` y volver a iniciar sesión.
-
----
-
-## 📁 Estructura del proyecto
-
-```text
-├── docs/screenshots/              # Capturas usadas en este README
-├── middleware.ts                  # Protección de rutas /admin/*
-├── vitest.config.ts               # Configuración de Vitest
-├── vitest.setup.ts                # Setup de Testing Library
-└── src/
-    ├── __tests__/                 # Tests unitarios
-    ├── app/
-    │   ├── layout.tsx             # Layout raíz (AuthProvider, Navbar, footer)
-    │   ├── page.tsx               # Página institucional
-    │   ├── login/                 # Inicio de sesión
-    │   ├── catalogo/              # Catálogo público y detalle de producto
-    │   └── admin/
-    │       ├── layout.tsx         # Layout anidado del panel (Sidebar + control de acceso)
-    │       ├── page.tsx           # Panel de control
-    │       ├── productos/         # Gestión de productos (listado, nuevo, editar)
-    │       └── ventas/            # Gestión de ventas
-    ├── components/
-    │   ├── forms/                 # ProductForm
-    │   ├── layout/                # Navbar, AdminShell, AdminSidebar
-    │   └── ui/                    # Button, InputField, DataTable, ConfirmModal,
-    │                              # FilterBar, ProductCard, BadgeStatus
-    ├── context/                   # AuthContext
-    ├── lib/
-    │   ├── mocks/                 # Datos simulados (productos y ventas)
-    │   ├── services/              # Clientes de la API (productos y ventas)
-    │   ├── validations/           # Esquemas Zod (login y producto)
-    │   ├── utils.ts               # Utilidades generales (formatCurrency)
-    │   └── ...                    # auth-service, jwt, roles, navegación, ventas
-    └── types/                     # Tipos TypeScript (auth, producto, venta)
-```
-
----
-
-## 📸 Capturas de pantalla
-
-### Página principal
-
-![Página principal](docs/screenshots/inicio.png)
-
-### Inicio de sesión
-
-![Inicio de sesión](docs/screenshots/login.png)
-
-### Catálogo público
-
-`[PEGAR CAPTURA: catálogo]`
-
-### Panel de administración
-
-![Panel de administración](docs/screenshots/panel.png)
-
-### Gestión de productos
-
-![Gestión de productos](docs/screenshots/productos.png)
-
-### Gestión de ventas
-
-![Gestión de ventas](docs/screenshots/ventas.png)
-
-### Tests en verde
-
-![Tests en verde](docs/screenshots/tests.png)
-
----
-
-© Tuerca y Perno RC — Ferretería & Corralón. Proyecto académico.
+© 2026 **Tuerca y Perno RC** — Sistema de Gestión Comercial e Industrial.  
+Trabajo Integrador — **Grupo Alt + f4**.

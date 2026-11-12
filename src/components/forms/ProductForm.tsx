@@ -13,25 +13,12 @@ import {
 import { InputField } from "@/components/ui/InputField";
 import { Button } from "@/components/ui/Button";
 
-import {
-  MOCK_CATEGORIAS,
-  MOCK_MARCAS,
-} from "@/lib/mocks/producto-mock";
-
 import { useAuth } from "@/context/AuthContext";
-import { USE_PRODUCT_MOCKS } from "@/lib/services/producto-service";
-
-interface CatalogoItem {
-  id: number;
-  nombre: string;
-}
-
-interface CatalogoResponse {
-  results: CatalogoItem[];
-}
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+import {
+  CatalogoItem,
+  getCategorias,
+  getMarcas,
+} from "@/lib/services/producto-service";
 
 export interface ProductFormProps {
   /** Modo del formulario */
@@ -67,93 +54,49 @@ export function ProductForm({
 
   const [categorias, setCategorias] = useState<CatalogoItem[]>([]);
   const [marcas, setMarcas] = useState<CatalogoItem[]>([]);
-  const [catalogLoading, setCatalogLoading] = useState(!USE_PRODUCT_MOCKS);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [serverErrors, setServerErrors] = useState<DjangoFieldErrors | null>(null);
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null);
 
-useEffect(() => {
-  // Si estamos trabajando con mocks, utilizamos los datos simulados.
-  if (USE_PRODUCT_MOCKS) {
-    setCategorias(MOCK_CATEGORIAS);
-    setMarcas(MOCK_MARCAS);
-    setCatalogLoading(false);
-    return;
-  }
+  useEffect(() => {
+    let cancelled = false;
 
-  // Para consultar los catálogos reales necesitamos el token.
-  if (!token) {
-    setCatalogLoading(false);
-    setCatalogError("No se pudo obtener el token de autenticación.");
-    return;
-  }
+    const cargarCatalogos = async () => {
+      setCatalogLoading(true);
+      setCatalogError(null);
 
-  let cancelled = false;
+      try {
+        const [categoriasData, marcasData] = await Promise.all([
+          getCategorias(token ?? undefined),
+          getMarcas(token ?? undefined),
+        ]);
 
-  const cargarCatalogos = async () => {
-    setCatalogLoading(true);
-    setCatalogError(null);
-
-    try {
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-
-      const [categoriasResponse, marcasResponse] = await Promise.all([
-        fetch(`${API_BASE}/api/categorias/`, {
-          headers,
-          cache: "no-store",
-        }),
-        fetch(`${API_BASE}/api/marcas/`, {
-          headers,
-          cache: "no-store",
-        }),
-      ]);
-
-      if (!categoriasResponse.ok || !marcasResponse.ok) {
-        throw new Error("No se pudieron obtener las categorías y marcas.");
+        if (!cancelled) {
+          setCategorias(categoriasData);
+          setMarcas(marcasData);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setCatalogError(
+            error instanceof Error
+              ? error.message
+              : "Error al cargar categorías y marcas desde la API de Django."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setCatalogLoading(false);
+        }
       }
+    };
 
-      const [categoriasData, marcasData]: [
-        CatalogoResponse,
-        CatalogoResponse
-      ] = await Promise.all([
-        categoriasResponse.json(),
-        marcasResponse.json(),
-      ]);
+    cargarCatalogos();
 
-      if (
-        !Array.isArray(categoriasData.results) ||
-        !Array.isArray(marcasData.results)
-      ) {
-        throw new Error("La respuesta del servidor tiene un formato inesperado.");
-      }
-
-      if (!cancelled) {
-        setCategorias(categoriasData.results);
-        setMarcas(marcasData.results);
-      }
-    } catch (error) {
-      if (!cancelled) {
-        setCatalogError(
-          error instanceof Error
-            ? error.message
-            : "Error al cargar categorías y marcas."
-        );
-      }
-    } finally {
-      if (!cancelled) {
-        setCatalogLoading(false);
-      }
-    }
-  };
-
-  cargarCatalogos();
-
-  return () => {
-    cancelled = true;
-  };
-}, [token]);
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   const {
     register,

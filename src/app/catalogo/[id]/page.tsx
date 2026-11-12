@@ -11,7 +11,7 @@ interface ProductoPageProps {
   params: Promise<{ id: string }>;
 }
 
-import { fetchProductoById } from "@/lib/services/producto-service";
+import { getProductoById } from "@/lib/services/producto-service";
 
 /**
  * GET /api/productos/{id}/
@@ -20,7 +20,7 @@ import { fetchProductoById } from "@/lib/services/producto-service";
  */
 const obtenerProducto = cache(async (id: string): Promise<ProductoDetalle | null> => {
   if (!/^\d+$/.test(id)) return null;
-  return fetchProductoById(id);
+  return getProductoById(id);
 });
 
 export async function generateMetadata({ params }: ProductoPageProps): Promise<Metadata> {

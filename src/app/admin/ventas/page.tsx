@@ -14,10 +14,9 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { Venta } from "@/types/venta";
 import {
-  fetchVentas,
-  fetchVentasDelDia,
+  getVentas,
+  getVentasDelDia,
   finalizarVenta,
-  USE_VENTA_MOCKS,
 } from "@/lib/services/venta-service";
 import {
   actualizarEstadoVenta,
@@ -69,15 +68,15 @@ export default function VentasAdminPage() {
   const [finalizandoId, setFinalizandoId] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
 
-  /** Carga en paralelo el historial y las ventas del día. */
+  /** Carga en paralelo el historial y las ventas del día desde la API real de Django. */
   const cargarVentas = useCallback(async () => {
-    if (!token && !USE_VENTA_MOCKS) return;
+    if (!token) return;
     setIsLoading(true);
     setFetchError(null);
     try {
       const [historial, delDia] = await Promise.all([
-        fetchVentas(token ?? ""),
-        fetchVentasDelDia(token ?? ""),
+        getVentas(token),
+        getVentasDelDia(token),
       ]);
       setVentas(historial.results);
       setVentasDelDia(delDia);
@@ -199,12 +198,7 @@ export default function VentasAdminPage() {
         </nav>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Gestión de Ventas</h1>
         <p className="text-slate-500 mt-1 text-sm">
-          Resumen de las ventas del día e historial completo de transacciones.
-          {USE_VENTA_MOCKS && (
-            <span className="ml-2 inline-flex px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 text-[11px] font-bold uppercase">
-              Datos simulados
-            </span>
-          )}
+          Resumen de las ventas del día e historial completo de transacciones en tiempo real.
         </p>
       </div>
 
