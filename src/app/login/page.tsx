@@ -147,7 +147,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
-              onClick={() => setDemoCredentials("admin", "admin123")}
+              onClick={() => setDemoCredentials("admin", "admin12345")}
               className="px-2.5 py-1.5 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold text-center transition-colors"
             >
               Admin
@@ -161,7 +161,7 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              onClick={() => setDemoCredentials("deposito", "deposito123")}
+              onClick={() => setDemoCredentials("deposito_marcos", "deposito123")}
               className="px-2.5 py-1.5 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold text-center transition-colors"
             >
               Depósito
