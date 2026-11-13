@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/context/AuthContext";
 import { Producto } from "@/types/producto";
-import { getProductos, deleteProducto } from "@/lib/services/producto-service";
+import { getTodosLosProductos, deleteProducto } from "@/lib/services/producto-service";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import { Button } from "@/components/ui/Button";
@@ -32,9 +32,8 @@ export default function ProductosAdminPage() {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const data = await getProductos(undefined, token);
-      // Soporta tanto respuesta paginada (DRF) como array directo
-      setProductos(Array.isArray(data) ? data : data.results);
+      // Trae todas las páginas de la API (DRF pagina de a 10)
+      setProductos(await getTodosLosProductos(token));
     } catch (err) {
       setFetchError(
         err instanceof Error

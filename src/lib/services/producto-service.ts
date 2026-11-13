@@ -1,6 +1,7 @@
 import Cookies from "js-cookie";
 import {
   ActualizarStockPayload,
+  Producto,
   ProductoDetalle,
   ProductosQuery,
   ProductosResponse,
@@ -173,6 +174,54 @@ export async function getProductos(
 export const fetchProductos = getProductos;
 
 /**
+ * Recorre todas las páginas de un endpoint paginado de DRF y devuelve la
+ * lista completa. Pide ?page=N en vez de seguir el campo "next", porque el
+ * backend lo arma con http:// y el navegador lo bloquea desde un sitio https.
+ */
+export async function getTodasLasPaginas<T>(
+  path: string,
+  token: string | undefined,
+  errorMessage: string
+): Promise<T[]> {
+  const items: T[] = [];
+  const separador = path.includes("?") ? "&" : "?";
+
+  // Límite de seguridad para no quedar en un bucle infinito
+  for (let page = 1; page <= 100; page++) {
+    const sufijo = page > 1 ? `${separador}page=${page}` : "";
+    const res = await fetch(`${API_BASE_URL}${path}${sufijo}`, {
+      method: "GET",
+      headers: buildHeaders(token),
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      await handleApiError(res, errorMessage);
+    }
+
+    const data = await res.json();
+    if (Array.isArray(data)) return data as T[];
+
+    items.push(...((data.results ?? []) as T[]));
+    if (!data.next) break;
+  }
+
+  return items;
+}
+
+/**
+ * GET /api/productos/ (todas las páginas)
+ * Lista completa de productos para el panel de administración.
+ */
+export async function getTodosLosProductos(token?: string): Promise<Producto[]> {
+  return getTodasLasPaginas<Producto>(
+    "/api/productos/",
+    token,
+    "Error al obtener productos"
+  );
+}
+
+/**
  * GET /api/productos/{id}/
  * Obtiene el detalle técnico y stock de un producto específico.
  */
@@ -329,18 +378,11 @@ export interface CatalogoListResponse {
  * Obtiene el listado de categorías disponibles en la ferretería.
  */
 export async function getCategorias(token?: string): Promise<CatalogoItem[]> {
-  const res = await fetch(`${API_BASE_URL}/api/categorias/`, {
-    method: "GET",
-    headers: buildHeaders(token),
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    await handleApiError(res, "Error al obtener las categorías");
-  }
-
-  const data = await res.json();
-  return Array.isArray(data) ? data : data.results || [];
+  return getTodasLasPaginas<CatalogoItem>(
+    "/api/categorias/",
+    token,
+    "Error al obtener las categorías"
+  );
 }
 
 /**
@@ -348,18 +390,11 @@ export async function getCategorias(token?: string): Promise<CatalogoItem[]> {
  * Obtiene el listado de marcas registradas.
  */
 export async function getMarcas(token?: string): Promise<CatalogoItem[]> {
-  const res = await fetch(`${API_BASE_URL}/api/marcas/`, {
-    method: "GET",
-    headers: buildHeaders(token),
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    await handleApiError(res, "Error al obtener las marcas");
-  }
-
-  const data = await res.json();
-  return Array.isArray(data) ? data : data.results || [];
+  return getTodasLasPaginas<CatalogoItem>(
+    "/api/marcas/",
+    token,
+    "Error al obtener las marcas"
+  );
 }
 
 /**

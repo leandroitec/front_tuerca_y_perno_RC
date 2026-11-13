@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
 import { PaginatedResponse } from "@/types/producto";
+import { getTodasLasPaginas } from "@/lib/services/producto-service";
 import {
   EstadoVenta,
   EstadoVentaApi,
@@ -132,39 +133,15 @@ export function adaptarLista(ventas: VentaApi[]): Venta[] {
  * Historial general y paginado de ventas. Requiere token de autenticación.
  */
 export async function getVentas(token?: string): Promise<PaginatedResponse<Venta>> {
-  const endpoint = `${API_BASE_URL}/api/ventas/`;
+  // Trae todas las páginas (DRF pagina de a 10) para no cortar el historial
+  const todas = await getTodasLasPaginas<VentaApi>(
+    "/api/ventas/",
+    token || getStoredToken(),
+    "Error al obtener el historial de ventas"
+  );
+  const results = adaptarLista(todas);
 
-  const res = await fetch(endpoint, {
-    method: "GET",
-    headers: buildHeaders(token),
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    await handleApiError(res, "Error al obtener el historial de ventas");
-  }
-
-  const data = await res.json();
-
-  // Si Django responde con paginación { count, next, previous, results }
-  if (data && Array.isArray(data.results)) {
-    return {
-      ...data,
-      results: adaptarLista(data.results),
-    };
-  }
-
-  // Si responde con un array directo
-  if (Array.isArray(data)) {
-    return {
-      count: data.length,
-      next: null,
-      previous: null,
-      results: adaptarLista(data),
-    };
-  }
-
-  return { count: 0, next: null, previous: null, results: [] };
+  return { count: results.length, next: null, previous: null, results };
 }
 export const fetchVentas = getVentas;
 
