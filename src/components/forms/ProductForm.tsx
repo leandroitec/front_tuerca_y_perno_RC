@@ -102,6 +102,7 @@ export function ProductForm({
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProductoFormValues>({
     resolver: zodResolver(productoSchema),
@@ -115,6 +116,20 @@ export function ProductForm({
       ...defaultValues,
     },
   });
+
+  // Las opciones de categoría y marca llegan después de montar el formulario;
+  // el <select> no puede mostrar el valor inicial hasta que existe su <option>,
+  // así que se vuelve a aplicar cuando terminan de cargar.
+  const categoriaInicial = defaultValues?.categoria_id ?? "";
+  const marcaInicial = defaultValues?.marca_id ?? "";
+  useEffect(() => {
+    if (categorias.length > 0 && categoriaInicial) {
+      setValue("categoria_id", categoriaInicial);
+    }
+    if (marcas.length > 0 && marcaInicial) {
+      setValue("marca_id", marcaInicial);
+    }
+  }, [categorias, marcas, categoriaInicial, marcaInicial, setValue]);
 
   const onSubmit = async (values: ProductoFormValues) => {
     setServerErrors(null);
