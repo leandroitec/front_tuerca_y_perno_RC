@@ -13,17 +13,18 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Search } from "lucide-react";
 
 /**
- * Categorías disponibles en el filtro.
- * El contrato de la API no expone un endpoint de categorías, por eso se definen acá
- * y se pueden reemplazar desde afuera con la prop `categorias`.
+ * Categorías de respaldo del filtro. Normalmente el catálogo pasa por la prop
+ * `categorias` los nombres reales que trae de GET /api/categorias/; esta lista
+ * solo se usa si esa llamada falla. Coincide con las categorías de poblar_datos.
  */
 const CATEGORIAS_POR_DEFECTO: readonly string[] = [
-  "Herramientas",
-  "Sanitarios",
-  "Bulonería",
-  "Electricidad",
-  "Pinturería",
-  "Construcción",
+  "Electricidad e Iluminación",
+  "Herramientas y Maquinarias",
+  "Materiales de Corralón",
+  "Pinturería e Impermeabilizantes",
+  "Sanitarios y Grifería",
+  "Seguridad Industrial y Protección",
+  "Tornillería y Fijaciones",
 ];
 
 /**

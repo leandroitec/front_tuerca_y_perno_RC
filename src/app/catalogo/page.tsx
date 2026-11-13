@@ -44,11 +44,24 @@ function construirParams(query: ProductosQuery): URLSearchParams {
   return params;
 }
 
-import { getProductos } from "@/lib/services/producto-service";
+import { getCategorias, getProductos } from "@/lib/services/producto-service";
 
 /** GET /api/productos/?page=&categoria=&search= desde la API real de Django */
 async function obtenerProductos(query: QueryCatalogo): Promise<ProductosResponse> {
   return getProductos(query);
+}
+
+/**
+ * GET /api/categorias/ para armar el filtro con los nombres reales del back.
+ * Si la API falla, devuelve undefined y el FilterBar usa su lista por defecto.
+ */
+async function obtenerNombresDeCategorias(): Promise<string[] | undefined> {
+  try {
+    const categorias = await getCategorias();
+    return categorias.length > 0 ? categorias.map((c) => c.nombre) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function hrefPagina(query: QueryCatalogo, pagina: number): string {
@@ -105,7 +118,10 @@ function Paginacion({ query, hayAnterior, haySiguiente }: PaginacionProps) {
 export default async function CatalogoPage({ searchParams }: CatalogoPageProps) {
   const parametros = await searchParams;
   const query = parsearQuery(parametros);
-  const { count, next, previous, results } = await obtenerProductos(query);
+  const [{ count, next, previous, results }, categorias] = await Promise.all([
+    obtenerProductos(query),
+    obtenerNombresDeCategorias(),
+  ]);
   const hayFiltros = Boolean(query.categoria || query.search);
   return (
     <div className="min-h-full bg-slate-100">
@@ -133,7 +149,7 @@ export default async function CatalogoPage({ searchParams }: CatalogoPageProps) 
       </section>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        <FilterBar />
+        <FilterBar categorias={categorias} />
 
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600">
           <p>
