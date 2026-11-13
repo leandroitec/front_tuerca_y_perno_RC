@@ -242,9 +242,58 @@ export async function getProductoById(
     await handleApiError(res, `Error al obtener el producto #${id}`);
   }
 
-  return res.json();
+  const producto = await res.json();
+  return completarCategoriaYMarca(producto, token);
 }
 export const fetchProductoById = getProductoById;
+
+/**
+ * El detalle de Django (GET /api/productos/{id}/) devuelve categoria y marca
+ * solo como id numérico. La ficha y el formulario de edición necesitan el
+ * objeto { id, nombre }, así que se buscan los nombres en /api/categorias/ y
+ * /api/marcas/ y se completan también categoria_id y marca_id.
+ */
+async function completarCategoriaYMarca(
+  producto: ProductoDetalle & {
+    categoria: ProductoDetalle["categoria"] | number;
+    marca: ProductoDetalle["marca"] | number;
+  },
+  token?: string
+): Promise<ProductoDetalle> {
+  const categoriaEsId = typeof producto.categoria === "number";
+  const marcaEsId = typeof producto.marca === "number";
+
+  const [categorias, marcas] = await Promise.all([
+    categoriaEsId ? getCategorias(token) : Promise.resolve([]),
+    marcaEsId ? getMarcas(token) : Promise.resolve([]),
+  ]);
+
+  const resultado: ProductoDetalle = { ...producto } as ProductoDetalle;
+
+  if (typeof producto.categoria === "number") {
+    const id = producto.categoria;
+    const encontrada = categorias.find((c) => c.id === id);
+    resultado.categoria = {
+      id,
+      nombre: encontrada?.nombre ?? "Sin categoría",
+      descripcion: "",
+    };
+    resultado.categoria_id = id;
+  } else if (typeof producto.categoria === "object") {
+    resultado.categoria_id ??= producto.categoria.id;
+  }
+
+  if (typeof producto.marca === "number") {
+    const id = producto.marca;
+    const encontrada = marcas.find((m) => m.id === id);
+    resultado.marca = { id, nombre: encontrada?.nombre ?? "Sin marca" };
+    resultado.marca_id = id;
+  } else if (typeof producto.marca === "object") {
+    resultado.marca_id ??= producto.marca.id;
+  }
+
+  return resultado;
+}
 
 /**
  * POST /api/productos/
