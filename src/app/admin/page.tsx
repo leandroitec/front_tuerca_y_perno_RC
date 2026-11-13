@@ -1,12 +1,65 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
+import { UMBRAL_ULTIMAS_UNIDADES } from "@/components/ui/ProductCard";
+import { getTodosLosProductos } from "@/lib/services/producto-service";
+import { getVentasDelDia } from "@/lib/services/venta-service";
+import { calcularResumenVentas, formatearMoneda } from "@/lib/ventas";
+import { ADMIN_NAV_ITEMS, canAccessNavItem } from "@/lib/admin-navigation";
+import type { ResumenVentas } from "@/types/venta";
+
+interface ResumenStock {
+  productos: number;
+  unidades: number;
+  stockBajo: number;
+}
+
+/** Puede el rol entrar a la sección con este href (misma regla que el menú). */
+function puedeEntrar(role: Parameters<typeof canAccessNavItem>[0], href: string) {
+  const item = ADMIN_NAV_ITEMS.find((i) => i.href === href);
+  return !!item && canAccessNavItem(role, item);
+}
 
 export default function AdminDashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
+  const puedeVerVentas = puedeEntrar(user?.role, "/admin/ventas");
+  const puedeVerProductos = puedeEntrar(user?.role, "/admin/productos");
+
+  const [ventasHoy, setVentasHoy] = useState<ResumenVentas | null>(null);
+  const [stock, setStock] = useState<ResumenStock | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Métricas reales desde la API de Django
+  useEffect(() => {
+    if (!token) return;
+    let cancelado = false;
+
+    getTodosLosProductos(token)
+      .then((productos) => {
+        if (cancelado) return;
+        setStock({
+          productos: productos.length,
+          unidades: productos.reduce((acc, p) => acc + p.stock, 0),
+          stockBajo: productos.filter((p) => p.stock <= UMBRAL_ULTIMAS_UNIDADES).length,
+        });
+      })
+      .catch(() => !cancelado && setError("No se pudieron cargar las métricas de stock."));
+
+    if (puedeVerVentas) {
+      getVentasDelDia(token)
+        .then((ventas) => !cancelado && setVentasHoy(calcularResumenVentas(ventas)))
+        .catch(() => !cancelado && setError("No se pudieron cargar las ventas del día."));
+    }
+
+    return () => {
+      cancelado = true;
+    };
+  }, [token, puedeVerVentas]);
+
+  const cargando = "…";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -38,35 +91,58 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Métricas y Accesos Rápidos */}
+      {error && (
+        <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {/* Métricas reales (API de Django) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-            Pedidos del Día
+            Ventas del Día
           </div>
-          <div className="text-3xl font-black text-slate-900 mt-2">38</div>
-          <div className="text-xs text-emerald-600 font-semibold mt-1">
-            +14% vs. día anterior
-          </div>
+          {puedeVerVentas ? (
+            <>
+              <div className="text-3xl font-black text-slate-900 mt-2">
+                {ventasHoy ? ventasHoy.cantidad : cargando}
+              </div>
+              <div className="text-xs text-emerald-600 font-semibold mt-1">
+                {ventasHoy ? `${formatearMoneda(ventasHoy.total)} facturado` : "Cargando..."}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-3xl font-black text-slate-300 mt-2">—</div>
+              <div className="text-xs text-slate-500 font-medium mt-1">
+                No disponible para tu rol
+              </div>
+            </>
+          )}
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-            Fijaciones en Stock
+            Productos en Catálogo
           </div>
-          <div className="text-3xl font-black text-brand-600 mt-2">124.500</div>
+          <div className="text-3xl font-black text-brand-600 mt-2">
+            {stock ? stock.productos : cargando}
+          </div>
           <div className="text-xs text-slate-500 font-medium mt-1">
-            Tornillos, tuercas y pernos
+            {stock ? `${stock.unidades.toLocaleString("es-AR")} unidades en stock` : "Cargando..."}
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-            Corralón / Áridos
+            Stock Bajo
           </div>
-          <div className="text-3xl font-black text-slate-900 mt-2">42 Bolsas</div>
+          <div className="text-3xl font-black text-slate-900 mt-2">
+            {stock ? stock.stockBajo : cargando}
+          </div>
           <div className="text-xs text-amber-600 font-semibold mt-1">
-            8 envíos programados
+            Productos con {UMBRAL_ULTIMAS_UNIDADES} unidades o menos
           </div>
         </div>
 
@@ -90,6 +166,7 @@ export default function AdminDashboardPage() {
           Operaciones Disponibles
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {puedeVerVentas && (
           <Link
             href="/admin/ventas"
             className="group block border border-slate-200 rounded-xl p-5 hover:border-brand-500 hover:shadow-md transition-all duration-200 bg-slate-50/50 hover:bg-white"
@@ -102,7 +179,9 @@ export default function AdminDashboardPage() {
               Consultá ventas del día, finalizá órdenes pendientes e inspeccioná el historial.
             </p>
           </Link>
+          )}
 
+          {puedeVerProductos && (
           <Link
             href="/admin/productos"
             className="group block border border-slate-200 rounded-xl p-5 hover:border-brand-500 hover:shadow-md transition-all duration-200 bg-slate-50/50 hover:bg-white"
@@ -115,6 +194,7 @@ export default function AdminDashboardPage() {
               Administrá el stock de áridos, bulonería y herramientas (altas, bajas y edición).
             </p>
           </Link>
+          )}
 
           <Link
             href="/catalogo"
