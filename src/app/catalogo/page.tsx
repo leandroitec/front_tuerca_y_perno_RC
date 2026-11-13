@@ -44,11 +44,22 @@ function construirParams(query: ProductosQuery): URLSearchParams {
   return params;
 }
 
-import { getCategorias, getProductos } from "@/lib/services/producto-service";
+import { redirect } from "next/navigation";
+import { ApiError, getCategorias, getProductos } from "@/lib/services/producto-service";
 
 /** GET /api/productos/?page=&categoria=&search= desde la API real de Django */
 async function obtenerProductos(query: QueryCatalogo): Promise<ProductosResponse> {
-  return getProductos(query);
+  try {
+    return await getProductos(query);
+  } catch (error) {
+    // DRF responde 404 "Página inválida" si ?page= supera la cantidad de
+    // páginas (ej. URL escrita a mano). En vez de mostrar el error de
+    // conexión, se vuelve a la primera página manteniendo los filtros.
+    if (error instanceof ApiError && error.status === 404 && query.page > 1) {
+      redirect(hrefPagina(query, 1));
+    }
+    throw error;
+  }
 }
 
 /**
